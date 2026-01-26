@@ -1,0 +1,82 @@
+
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { prisma } from "../../lib/prisma";
+import { Role, UserStatus } from "../../../generated/prisma/enums";
+import { RegisterPayload, LoginPayload } from "./types";
+
+const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
+
+// -------------------- REGISTER --------------------
+ const registerUser = async (payload: RegisterPayload) => {
+  const { name, email, password, role } = payload;
+
+  // Check if user exists
+  const existingUser = await prisma.user.findUnique({ where: { email } });
+  if (existingUser) throw new Error("Email already registered");
+
+  // Hash password
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  // Assign role safely
+  let userRole: Role = Role.STUDENT;
+  if (role && role.toUpperCase() === "TUTOR") userRole = Role.TUTOR;
+
+  // Create user
+  const user = await prisma.user.create({
+    data: {
+      name,
+      email,
+      password: hashedPassword,
+      role: userRole,
+      status: UserStatus.ACTIVE,
+      emailVerified: false,
+    },
+  });
+
+  // Sign JWT
+  const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, {
+    expiresIn: "7d",
+  });
+
+  return { user, token };
+};
+
+// -------------------- LOGIN --------------------
+ const loginUser = async (payload: LoginPayload) => {
+  const { email, password } = payload;
+
+  const user = await prisma.user.findUnique({ where: { email } });
+
+
+  if (!user) throw new Error("Invalid credentials");
+  if (user.status === UserStatus.BANNED) throw new Error("User is banned");
+
+
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) throw new Error("Invalid credentials");
+
+  const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, {
+    expiresIn: "7d",
+  });
+
+  return { user, token };
+};
+
+// -------------------- GET CURRENT USER --------------------
+ const getCurrentUser = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      status: true,
+    },
+  });
+  if (!user) throw new Error("User not found");
+  return user;
+};
+
+export const authServices = {registerUser,loginUser,getCurrentUser}

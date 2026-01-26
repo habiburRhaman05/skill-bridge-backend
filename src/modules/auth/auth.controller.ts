@@ -1,0 +1,53 @@
+// src/modules/auth/auth.controller.ts
+import { Request, Response } from "express";
+import { authServices } from "./auth.service";
+
+// -------------------- REGISTER --------------------
+ const registerController = async (req: Request, res: Response) => {
+  try {
+    console.log(req.body);
+    
+    const { user, token } = await authServices.registerUser(req.body);
+//    res.cookie("token",token,{
+//     sameSite:"lax",
+//     maxAge:600000,
+//     secure:false,
+//     httpOnly:true
+//    })
+    res.status(201).json({
+      message: "User registered successfully",
+      user,
+      token,
+    });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// -------------------- LOGIN --------------------
+ const loginController = async (req: Request, res: Response) => {
+  try {
+    const { user, token } = await authServices.loginUser(req.body);
+    res.status(200).json({
+      message: "Login successful",
+      user,
+      token,
+    });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// -------------------- GET CURRENT USER --------------------
+ const meController = async (req: Request, res: Response) => {
+  try {
+    // userId injected by auth middleware
+    const user = await authServices.getCurrentUser((req as any).user.userId);
+    res.status(200).json(user);
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+
+export const authControllers = {registerController,loginController,meController}
