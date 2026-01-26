@@ -1,3 +1,5 @@
+import { Role } from "../../../generated/prisma/enums";
+import { TutorProfileResponse } from "../tutor/types";
 
 export type RegisterPayload = {
   name: string;
@@ -14,4 +16,12 @@ export type LoginPayload = {
 export interface JwtPayload {
   userId: string;
   role: "STUDENT" | "TUTOR" | "ADMIN";
+}
+export interface CurrentUserResponse {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  status: string;
+  tutorProfile?: TutorProfileResponse; // only present if role = TUTOR
 }

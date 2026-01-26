@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { prisma } from "../../lib/prisma";
 import { Role, UserStatus } from "../../../generated/prisma/enums";
-import { RegisterPayload, LoginPayload } from "./types";
+import { RegisterPayload, LoginPayload, CurrentUserResponse } from "./types";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
@@ -64,7 +64,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 };
 
 // -------------------- GET CURRENT USER --------------------
- const getCurrentUser = async (userId: string) => {
+ const getCurrentUser = async (userId: string): Promise<CurrentUserResponse> => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -73,10 +73,27 @@ const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
       email: true,
       role: true,
       status: true,
+      tutorProfile: {
+        select: {
+          id: true,
+          bio: true,
+          categories: true,
+         hourlyRate: true,
+          availability: true,
+        },
+      },
     },
   });
-  if (!user) throw new Error("User not found");
-  return user;
-};
 
+  if (!user) throw new Error("User not found");
+
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    status: user.status,
+    tutorProfile: user.role === Role.TUTOR ? user.tutorProfile : undefined,
+  };
+};
 export const authServices = {registerUser,loginUser,getCurrentUser}
