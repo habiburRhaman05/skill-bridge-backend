@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { prisma } from "../../lib/prisma";
 import { Role, UserStatus } from "../../../generated/prisma/enums";
 import { RegisterPayload, LoginPayload, CurrentUserResponse } from "./types";
+import { AppError } from "../../utils/AppError";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
@@ -77,7 +78,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
         select: {
           id: true,
           bio: true,
-          categories: true,
+          category: true,
          hourlyRate: true,
           availability: true,
         },
@@ -87,13 +88,32 @@ const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
   if (!user) throw new Error("User not found");
 
-  return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    status: user.status,
-    tutorProfile: user.role === Role.TUTOR ? user.tutorProfile : undefined,
-  };
+  return user as CurrentUserResponse
 };
-export const authServices = {registerUser,loginUser,getCurrentUser}
+
+
+const isUserExist = async (userId:string,model:string) =>{
+ switch (model) {
+  case "USER":
+    const user = await prisma.user.findUnique({
+      where:{id:userId}
+    });
+    if(!user){
+      throw new AppError("user not found")
+    }
+    break;
+ 
+  case "TUTOR":
+    const tutor = await prisma.tutorProfile.findUnique({
+      where:{userId:userId}
+    });
+    if(!tutor){
+      throw new AppError("tutor profilr not found")
+    }
+
+  default:
+   return null
+ }
+}
+
+export const authServices = {isUserExist,registerUser,loginUser,getCurrentUser}

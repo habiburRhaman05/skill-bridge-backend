@@ -1,9 +1,11 @@
+import { Role } from "../../../generated/prisma/enums";
 
 export interface TutorProfileCreatePayload {
   bio: string;
   profileAvater: string;
   subjects: string[];    
   hourlyRate: number;       
+  category: string;       
   availability: string[];  
 }
 
@@ -22,9 +24,21 @@ export interface TutorProfileResponse {
   userId: string;
   bio: string;
   hourlyRate: number;
+  category: string;
+  subjects: string[];
   availability: string[];
   user?: {
-    name: string;
-    email: string;
+     name: string;
+     email: string;
+     profileAvater:string
+     role: Role;
+     status: string;
   };
+}
+
+export interface AddAvailabilityPayload {
+  userId: string;
+  date: string;
+  startTime: string;
+  endTime: string;
 }

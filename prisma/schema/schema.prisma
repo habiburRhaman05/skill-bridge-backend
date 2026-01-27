@@ -8,13 +8,6 @@ datasource db {
   provider = "postgresql"
 }
 
-
-
-
-
-
-
-
 enum Role {
   STUDENT
   TUTOR
@@ -38,6 +31,7 @@ model User {
   name      String
   email     String      @unique
   password  String
+  profileAvater String?
   role      Role
   status    UserStatus  @default(ACTIVE)
 emailVerified Boolean
@@ -58,8 +52,6 @@ model TutorProfile {
   userId       String   @unique
   bio          String
   hourlyRate   Int
-  averageRating Float   @default(0)
-  profileAvater String?
   // Availability stored as ISO strings
   // [morning,evening,night]
   availability String[]
@@ -68,6 +60,7 @@ model TutorProfile {
   user        User      @relation(fields: [userId], references: [id])
   // [math,english]
   subjects  String[]
+  category  String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

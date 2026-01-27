@@ -1,5 +1,7 @@
 // src/modules/tutor/tutor.service.ts
 import { prisma } from "../../lib/prisma";
+import { AppError } from "../../utils/AppError";
+import { authServices } from "../auth/auth.service";
 import { TutorProfileCreatePayload, TutorProfileUpdatePayload } from "./types";
 
 // -------------------- CREATE TUTOR PROFILE --------------------
@@ -12,9 +14,10 @@ import { TutorProfileCreatePayload, TutorProfileUpdatePayload } from "./types";
     data: {
       userId,
       bio: payload.bio,
-      profileAvater: payload.profileAvater,
+     availability:payload.availability,
       subjects: payload.subjects,
-      hourlyRate: payload.hourlyRate
+      hourlyRate: payload.hourlyRate,
+      category:payload.category
     },
   });
   return profile;
@@ -30,7 +33,7 @@ import { TutorProfileCreatePayload, TutorProfileUpdatePayload } from "./types";
     data: {
       bio: payload.bio ?? profile.bio,
       hourlyRate: payload.hourlyRate ?? profile.hourlyRate,
-      availability: payload.availability ?? profile.availability,
+      availability: payload.availability?.map((i)=> i.toLowerCase()) ?? profile.availability,
       subjects: payload.subjects ?? profile.subjects,
     },
   });
@@ -49,22 +52,75 @@ import { TutorProfileCreatePayload, TutorProfileUpdatePayload } from "./types";
 };
 // -------------------- GET TUTOR SESSIONS --------------------
 
- const getTutorSessions = async (userId: string) => {
+const getTutorSessions = async (userId: string) => {
   const profile = await prisma.tutorProfile.findUnique({
     where: { userId },
   });
   if (!profile) throw new Error("Tutor profile not found");
-
+  
   const sessions = await prisma.booking.findMany({
     where:{
       tutorId:profile.id
     }
   });
-
-
+  
   return sessions
 };
 
+// -------------------- PUT TUTOR CREATE AVAILABITY SLOT --------------------
+
+const addAvailabilityService = async  (userId:string,availibity:string) => {
+  console.log("userid",userId);
+  
+ const profile = await prisma.tutorProfile.findFirst({
+    where: { userId },
+  });
+  console.log(profile);
+  
+  if (!profile) throw new Error("Tutor profile not found");
+   const updatedData = await prisma.tutorProfile.update({
+    where:{
+      userId:userId
+    },
+    data:{
+      availability:[...profile.availability,availibity.toLowerCase()]
+    }
+  });
+
+  return updatedData
+
+};
+// -------------------- PUT MARK AS SESSION FINISH  --------------------
+
+const markdSessionFinish = async  (userId:string,bookingId:string) => {
+  
+ await authServices.isUserExist(userId,"TUTOR");
+  
+ const isBookingExist = await prisma.booking.findFirst({
+ where:{
+  tutorId:userId
+ }
+ })
+
+ if(!isBookingExist){
+  throw new AppError("Bookign not found")
+ }
+   const updatedData = await prisma.booking.update({
+    where:{
+      id:bookingId
+    },
+    data:{
+      status:"COMPLETED"
+    }
+  });
+
+  return updatedData
+
+};
+
+
+
  export const tutorServices = {
-    getTutorProfile,createTutorProfile,updateTutorProfile,getTutorSessions
+   getTutorProfile,createTutorProfile,updateTutorProfile,getTutorSessions,addAvailabilityService,
+   markdSessionFinish
  }

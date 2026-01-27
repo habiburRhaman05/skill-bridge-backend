@@ -49,11 +49,44 @@ import { tutorServices } from "./tutor.service";
       res.status(400).json({ error: error.message });
     }
   }
+  // -------------------- PUT TUTOR ADD AVIAVLEITY --------------------
+ const addAvailabilityController = async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).user.userId;
+      const {availability} = req.body;
+
+      const updatedData = await tutorServices.addAvailabilityService(userId,availability);
+      res.status(200).json({
+        message:"added availability successfully",
+        data:updatedData
+      });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+  // -------------------- PUT MARKD SESSION FINISH  --------------------
+ const markdSessionFinishController = async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).user.userId;
+      const sessionId = req.params.sessionId as string
+
+      const updateSession = await tutorServices.markdSessionFinish(userId,sessionId);
+      res.status(200).json({
+        message:"session marked sucessfully",
+        data:updateSession
+      });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  }
 
 
  export const tutorControllers = {
     createProfile,
     updateProfile,
     getProfile,
-    getTutorSessions
+    getTutorSessions,
+    addAvailabilityController,
+    markdSessionFinishController
+   
  }

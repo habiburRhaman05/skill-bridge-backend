@@ -21,6 +21,7 @@ export interface CurrentUserResponse {
   id: string;
   name: string;
   email: string;
+  profileAvater:string
   role: Role;
   status: string;
   tutorProfile?: TutorProfileResponse; // only present if role = TUTOR
