@@ -8,6 +8,7 @@ import tutorRouter from "./modules/tutor/tutor.router";
 
 import cors from "cors";
 import { corsConfig } from './config/cors';
+import { notFound } from './middleware/notFound';
 
 const app: Express = express();
 app.use(cors(corsConfig))
@@ -38,8 +39,9 @@ try {
     process.exit(1);
   }
 };
-
+app.use(notFound);
 app.use(errorHandler);
+
 
 
 export default app;

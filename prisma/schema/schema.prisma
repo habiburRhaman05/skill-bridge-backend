@@ -44,9 +44,9 @@ emailVerified Boolean
   // Relations
   tutorProfile TutorProfile?
   studentBookings Booking[] @relation("StudentBookings")
-  tutorBookings   Booking[] @relation("TutorBookings")
+
   reviewsGiven    Review[]  @relation("StudentReviews")
-  reviewsReceived Review[]  @relation("TutorReviews")
+
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -59,13 +59,15 @@ model TutorProfile {
   bio          String
   hourlyRate   Int
   averageRating Float   @default(0)
-
+  
   // Availability stored as ISO strings
+  // [morning,evening,night]
   availability String[]
 
   // Relations
   user        User      @relation(fields: [userId], references: [id])
-  categories  Category[] @relation("TutorCategories")
+  // [math,english]
+  subjects  String[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -75,9 +77,7 @@ model TutorProfile {
 model Category {
   id    String @id @default(uuid())
   name  String @unique
-
-  tutors TutorProfile[] @relation("TutorCategories")
-
+  subjects  String[]
   createdAt DateTime @default(now())
 }
 
@@ -91,9 +91,7 @@ model Booking {
 
   // Relations
   student User @relation("StudentBookings", fields: [studentId], references: [id])
-  tutor   User @relation("TutorBookings", fields: [tutorId], references: [id])
   review  Review?
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -112,7 +110,5 @@ model Review {
   // Relations
   booking Booking @relation(fields: [bookingId], references: [id])
   student User    @relation("StudentReviews", fields: [studentId], references: [id])
-  tutor   User    @relation("TutorReviews", fields: [tutorId], references: [id])
-
   createdAt DateTime @default(now())
 }
