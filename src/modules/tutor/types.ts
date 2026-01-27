@@ -1,8 +1,8 @@
 
 export interface TutorProfileCreatePayload {
   bio: string;
-  categories:any;       
-  experience: number;      
+  profileAvater: string;
+  subjects: string[];    
   hourlyRate: number;       
   availability: string[];  
 }
@@ -11,9 +11,9 @@ export interface TutorProfileCreatePayload {
 export interface TutorProfileUpdatePayload {
   bio?: string;
    categories:any;  
-  experience?: number;
   hourlyRate?: number;
   availability?: string[];
+  subjects?: string[];
 }
 
 
@@ -21,8 +21,6 @@ export interface TutorProfileResponse {
   id: string;
   userId: string;
   bio: string;
-  categories:any;  
-  experience: number;
   hourlyRate: number;
   availability: string[];
   user?: {

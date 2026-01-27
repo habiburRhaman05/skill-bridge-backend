@@ -12,12 +12,11 @@ import { TutorProfileCreatePayload, TutorProfileUpdatePayload } from "./types";
     data: {
       userId,
       bio: payload.bio,
-      categories: payload.categories,
-      hourlyRate: payload.hourlyRate,
-      availability: payload.availability, // string[]
+      profileAvater: payload.profileAvater,
+      subjects: payload.subjects,
+      hourlyRate: payload.hourlyRate
     },
   });
-
   return profile;
 };
 
@@ -32,6 +31,7 @@ import { TutorProfileCreatePayload, TutorProfileUpdatePayload } from "./types";
       bio: payload.bio ?? profile.bio,
       hourlyRate: payload.hourlyRate ?? profile.hourlyRate,
       availability: payload.availability ?? profile.availability,
+      subjects: payload.subjects ?? profile.subjects,
     },
   });
 
@@ -47,7 +47,24 @@ import { TutorProfileCreatePayload, TutorProfileUpdatePayload } from "./types";
   if (!profile) throw new Error("Tutor profile not found");
   return profile;
 };
+// -------------------- GET TUTOR SESSIONS --------------------
+
+ const getTutorSessions = async (userId: string) => {
+  const profile = await prisma.tutorProfile.findUnique({
+    where: { userId },
+  });
+  if (!profile) throw new Error("Tutor profile not found");
+
+  const sessions = await prisma.booking.findMany({
+    where:{
+      tutorId:profile.id
+    }
+  });
+
+
+  return sessions
+};
 
  export const tutorServices = {
-    getTutorProfile,createTutorProfile,updateTutorProfile
+    getTutorProfile,createTutorProfile,updateTutorProfile,getTutorSessions
  }

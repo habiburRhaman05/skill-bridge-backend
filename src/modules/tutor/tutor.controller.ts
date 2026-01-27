@@ -36,10 +36,24 @@ import { tutorServices } from "./tutor.service";
       res.status(400).json({ error: error.message });
     }
   }
+  // -------------------- GET TUTOR SESSIONS --------------------
+ const getTutorSessions = async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).user.userId;
+      const sessions = await tutorServices.getTutorSessions(userId);
+      res.status(200).json({
+        message:"session fetch successfully",
+        data:sessions
+      });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  }
 
 
  export const tutorControllers = {
     createProfile,
     updateProfile,
-    getProfile
+    getProfile,
+    getTutorSessions
  }

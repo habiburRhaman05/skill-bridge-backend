@@ -59,7 +59,7 @@ model TutorProfile {
   bio          String
   hourlyRate   Int
   averageRating Float   @default(0)
-  
+  profileAvater String?
   // Availability stored as ISO strings
   // [morning,evening,night]
   availability String[]
