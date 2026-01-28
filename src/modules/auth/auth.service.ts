@@ -74,6 +74,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
       email: true,
       role: true,
       status: true,
+      profileAvater:true,
       tutorProfile: {
         select: {
           id: true,

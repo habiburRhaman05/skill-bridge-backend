@@ -5,6 +5,7 @@ import { errorHandler } from './middleware/errorHandler';
 
 import authRouter from "./modules/auth/auth.router";
 import tutorRouter from "./modules/tutor/tutor.router";
+import studentRouter from "./modules/student/student.router";
 import bookingRouter from "./modules/booking/booking.router";
 import {tutorsRouterPublic} from "./modules/tutor/tutor.router";
 
@@ -22,6 +23,7 @@ app.use("/api/auth",authRouter) // auth routes
 app.use("/api/tutor",tutorRouter) // only tutor private routes
 app.use("/api/tutors",tutorsRouterPublic) // tutors public access routes
 app.use("/api/booking",bookingRouter) // student only booking routes
+app.use("/api/student",studentRouter) // student only 
 app.get("/welcome-page",(req,res)=>{
   res.send("welcome to our my app")
 })
