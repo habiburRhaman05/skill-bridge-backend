@@ -14,7 +14,12 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
 
   try {
     const payload = jwt.verify(token, JWT_SECRET) as JwtPayload;
-    (req as any).user = payload; // attach to request
+   
+    
+    req.user = {
+      userId:payload.userId,
+      role:payload.role
+    }; // attach to request
     next();
   } catch {
     return res.status(401).json({ error: "Invalid token" });

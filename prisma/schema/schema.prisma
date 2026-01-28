@@ -54,18 +54,28 @@ model TutorProfile {
   hourlyRate   Int
   // Availability stored as ISO strings
   // [morning,evening,night]
-  availability String[]
+  availability Availability[]
 
   // Relations
   user        User      @relation(fields: [userId], references: [id])
   // [math,english]
   subjects  String[]
   category  String
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
+model Availability {
+  id        String       @id @default(uuid())
+  tutorId   String
+  tutor     TutorProfile @relation(fields: [tutorId], references: [id])
+  date      DateTime
+  bookings Booking[]
+  startTime String
+  isBooked  Boolean  @default(false)
+  endTime   String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
 
 model Category {
   id    String @id @default(uuid())
@@ -81,10 +91,12 @@ model Booking {
   tutorId   String
   dateTime  DateTime
   status    BookingStatus @default(CONFIRMED)
-
+availabilityId String       // link to availability slot
   // Relations
   student User @relation("StudentBookings", fields: [studentId], references: [id])
   review  Review?
+   
+  availability   Availability @relation(fields: [availabilityId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

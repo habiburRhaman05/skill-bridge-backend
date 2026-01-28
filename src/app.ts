@@ -5,6 +5,8 @@ import { errorHandler } from './middleware/errorHandler';
 
 import authRouter from "./modules/auth/auth.router";
 import tutorRouter from "./modules/tutor/tutor.router";
+import bookingRouter from "./modules/booking/booking.router";
+import {tutorsRouterPublic} from "./modules/tutor/tutor.router";
 
 import cors from "cors";
 import { corsConfig } from './config/cors';
@@ -16,8 +18,10 @@ app.use(cors(corsConfig))
 app.use(express.json({ limit: '1mb' }));
 app.set("trust proxy", 1);
 
-app.use("/api/auth",authRouter)
-app.use("/api/tutor",tutorRouter)
+app.use("/api/auth",authRouter) // auth routes
+app.use("/api/tutor",tutorRouter) // only tutor private routes
+app.use("/api/tutors",tutorsRouterPublic) // tutors public access routes
+app.use("/api/booking",bookingRouter) // student only booking routes
 app.get("/welcome-page",(req,res)=>{
   res.send("welcome to our my app")
 })
