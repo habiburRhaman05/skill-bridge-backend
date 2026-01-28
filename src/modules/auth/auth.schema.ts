@@ -14,7 +14,7 @@ import { z } from "zod";
       .string()
       .min(6, "Password must be at least 6 characters long"),
 
-    role: z.enum(["TUTOR","STUDENT"],{
+    role: z.enum(["TUTOR","STUDENT","ADMIN"],{
         errorMap:(()=> ({message: "Role must be STUDENT or TUTOR" }))
     })
   }),

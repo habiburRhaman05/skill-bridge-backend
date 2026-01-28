@@ -3,11 +3,12 @@ import { envConfig } from './config/env';
 import { applyMiddleware } from './middleware';
 import { errorHandler } from './middleware/errorHandler';
 
-import authRouter from "./modules/auth/auth.router";
-import tutorRouter from "./modules/tutor/tutor.router";
-import studentRouter from "./modules/student/student.router";
-import bookingRouter from "./modules/booking/booking.router";
-import {tutorsRouterPublic} from "./modules/tutor/tutor.router";
+import authRoutes from "./modules/auth/auth.route";
+import tutorRoutes from "./modules/tutor/tutor.route";
+import studentRoutes from "./modules/student/student.route";
+import bookingRoutes from "./modules/booking/booking.route";
+import adminRoutes from "./modules/admin/admin.route";
+import {tutorsRouterPublic} from "./modules/tutor/tutor.route";
 
 import cors from "cors";
 import { corsConfig } from './config/cors';
@@ -15,15 +16,16 @@ import { notFound } from './middleware/notFound';
 
 const app: Express = express();
 app.use(cors(corsConfig))
-// app.all('/api/auth/*splat', toNodeHandler(auth));
+
 app.use(express.json({ limit: '1mb' }));
 app.set("trust proxy", 1);
 
-app.use("/api/auth",authRouter) // auth routes
-app.use("/api/tutor",tutorRouter) // only tutor private routes
+app.use("/api/auth",authRoutes) // auth routes
+app.use("/api/tutor",tutorRoutes) // only tutor private routes
 app.use("/api/tutors",tutorsRouterPublic) // tutors public access routes
-app.use("/api/booking",bookingRouter) // student only booking routes
-app.use("/api/student",studentRouter) // student only 
+app.use("/api/booking",bookingRoutes) // student only booking routes
+app.use("/api/student",studentRoutes) // student only 
+app.use("/api/admin",adminRoutes) // admin only 
 app.get("/welcome-page",(req,res)=>{
   res.send("welcome to our my app")
 })
