@@ -65,7 +65,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 };
 
 // -------------------- GET CURRENT USER --------------------
- const getCurrentUser = async (userId: string): Promise<CurrentUserResponse> => {
+ const getCurrentUser = async (userId: string) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -75,6 +75,8 @@ const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
       role: true,
       status: true,
       profileAvater:true,
+      studentBookings:true,
+      reviewsGiven:true,
       tutorProfile: {
         select: {
           id: true,
@@ -82,7 +84,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
           category: true,
          hourlyRate: true,
          subjects:true,
-          // availability: true,
+         availability:true
         },
       },
     },
@@ -90,7 +92,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
   if (!user) throw new Error("User not found");
 
-  return user as CurrentUserResponse
+  return user 
 };
 
 

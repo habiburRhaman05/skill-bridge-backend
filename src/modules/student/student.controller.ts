@@ -1,40 +1,59 @@
 
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { studentService } from "./student.service";
- const getProfile= async (req: Request, res: Response) => {
+import { sendSuccess } from "../../utils/apiResponse";
+ const getProfile= async (req: Request, res: Response,next:NextFunction) => {
     try {
       const user = await studentService.getProfile(req.user!.userId);
-      res.json({ success: true, user });
+  
+      return sendSuccess(res,{
+        statusCode:200,
+        message:"fetch profile successfully",
+        data:user
+      })
     } catch (err: any) {
-      res.status(400).json({ success: false, message: err.message });
+      next(err)
     }
   }
 
- const updateProfile= async (req: Request, res: Response) => {
+ const updateProfile= async (req: Request, res: Response,next:NextFunction) => {
     try {
       const data = req.body;
       const updated = await studentService.updateProfile(req.user!.userId, data);
-      res.json({ success: true, user: updated });
+    return sendSuccess(res,{
+        statusCode:200,
+        message:" profile updated successfully",
+        data:updated
+      })
     } catch (err: any) {
-      res.status(400).json({ success: false, message: err.message });
+            next(err)
+
     }
   }
-  const changePassword=async (req: Request, res: Response) => {
+  const changePassword=async (req: Request, res: Response,next:NextFunction) => {
     try {
       const { oldPassword, newPassword } = req.body;
       const result = await studentService.changePassword(req.user!.userId, oldPassword, newPassword);
-      res.json({ success: true, message: result.message });
+     return sendSuccess(res,{
+        statusCode:200,
+        message:"password change successfully",
+      })
     } catch (err: any) {
-      res.status(400).json({ success: false, message: err.message });
+           next(err)
+
     }
   }
 
-  const deleteAccount= async (req: Request, res: Response) => {
+  const deleteAccount= async (req: Request, res: Response,next:NextFunction) => {
     try {
-      const result = await studentService.deleteAccount(req.user!.userId);
-      res.json({ success: true, message: result.message });
+   await studentService.deleteAccount(req.user!.userId);
+    return sendSuccess(res,{
+        statusCode:200,
+        message:"account delete successfully",
+    
+      })
     } catch (err: any) {
-      res.status(400).json({ success: false, message: err.message });
+    next(err)
     }
   }
 export const studentController = {
