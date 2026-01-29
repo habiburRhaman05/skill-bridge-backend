@@ -65,7 +65,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 };
 
 // -------------------- GET CURRENT USER --------------------
- const getCurrentUser = async (userId: string) => {
+const getCurrentUser = async (userId: string) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -82,42 +82,42 @@ const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
           id: true,
           bio: true,
           category: true,
-         hourlyRate: true,
-         subjects:true,
-         availability:true
+          hourlyRate: true,
+          subjects:true,
+          availability:true
         },
       },
     },
   });
 
   if (!user) throw new Error("User not found");
-
+  
   return user 
 };
 
 
 const isUserExist = async (userId:string,model:string) =>{
- switch (model) {
-  case "USER":
-    const user = await prisma.user.findUnique({
-      where:{id:userId}
-    });
+  switch (model) {
+    case "USER":
+      const user = await prisma.user.findUnique({
+        where:{id:userId}
+      });
     if(!user){
       throw new AppError("user not found")
     }
     break;
- 
-  case "TUTOR":
-    const tutor = await prisma.tutorProfile.findUnique({
-      where:{userId:userId}
-    });
-    if(!tutor){
-      throw new AppError("tutor profilr not found")
+    
+    case "TUTOR":
+      const tutor = await prisma.tutorProfile.findUnique({
+        where:{userId:userId}
+      });
+      if(!tutor){
+        throw new AppError("tutor profilr not found")
+      }
+      
+      default:
+        return null
+      }
     }
 
-  default:
-   return null
- }
-}
-
-export const authServices = {isUserExist,registerUser,loginUser,getCurrentUser}
+    export const authServices = {isUserExist,registerUser,loginUser,getCurrentUser}

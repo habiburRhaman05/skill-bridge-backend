@@ -14,6 +14,7 @@ const router:Router = Router();
 router.post("/register",validateRequest(authSchemas.registerUserSchema), authControllers.registerController);
 router.post("/login",validateRequest(authSchemas.loginSchema), authControllers.loginController);
 router.get("/me", authMiddleware, authControllers.meController);
+router.post("/logout", authMiddleware, authControllers.logoutController);
 //  ============== FOR STUDENT/USER AND TUTOR BOTH CAN USE IT ==============
 
 router.put("/change-password",authMiddleware,roleMiddleware(['STUDENT',"TUTOR"]), validateRequest(studentSchemas.changePasswordSchema), studentController.changePassword);

@@ -1,6 +1,7 @@
 // src/modules/auth/auth.controller.ts
 import { Request, Response } from "express";
 import { authServices } from "./auth.service";
+import { sendSuccess } from "../../utils/apiResponse";
 
 // -------------------- REGISTER --------------------
  const registerController = async (req: Request, res: Response) => {
@@ -41,11 +42,27 @@ import { authServices } from "./auth.service";
   try {
     // userId injected by auth middleware
     const user = await authServices.getCurrentUser((req as any).user.userId);
-    res.status(200).json(user);
+   return sendSuccess(res,{
+    data:user
+   })
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+    // --------------------  POST LOGOUT CURRENT USER --------------------
+
+ const logoutController = async (req: Request, res: Response) => {
+  try {
+
+    res.clearCookie("token")
+ 
+   return sendSuccess(res,{
+    message:"Logout succcess fully"
+   })
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }
 };
 
 
-export const authControllers = {registerController,loginController,meController}
+export const authControllers = {registerController,loginController,meController,logoutController}
