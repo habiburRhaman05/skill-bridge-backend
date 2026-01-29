@@ -7,6 +7,8 @@ const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
+
+  
   if (!authHeader) return res.status(401).json({ error: "Authorization header missing" });
 
   const token = authHeader.split(" ")[1];
