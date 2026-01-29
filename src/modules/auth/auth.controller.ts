@@ -8,12 +8,7 @@ import { authServices } from "./auth.service";
     console.log(req.body);
     
     const { user, token } = await authServices.registerUser(req.body);
-//    res.cookie("token",token,{
-//     sameSite:"lax",
-//     maxAge:600000,
-//     secure:false,
-//     httpOnly:true
-//    })
+
     res.status(201).json({
       message: "User registered successfully",
       user,
@@ -28,12 +23,8 @@ import { authServices } from "./auth.service";
  const loginController = async (req: Request, res: Response) => {
   try {
     const { user, token } = await authServices.loginUser(req.body);
-    res.cookie('token', token, { 
-        maxAge: 900000, 
-        httpOnly: true,
-        secure: true,      // Required for SameSite: 'none'
-        sameSite: 'none',  // Required for cross-origin requests
-        path: '/'
+     res.cookie('token', token, { 
+        maxAge: 900000
     });
     res.status(200).json({
       message: "Login successful",
