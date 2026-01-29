@@ -15,10 +15,10 @@ import { corsConfig } from './config/cors';
 import { notFound } from './middleware/notFound';
 
 const app: Express = express();
+app.set("trust proxy", 1);
 app.use(cors(corsConfig))
 app.use(cookieParser());
 app.use(express.json({ limit: '1mb' }));
-app.set("trust proxy", 1);
 
 app.use("/api/auth",authRoutes) // auth routes
 app.use("/api/tutor",tutorRoutes) // only tutor private routes

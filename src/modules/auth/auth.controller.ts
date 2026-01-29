@@ -25,7 +25,12 @@ import { sendSuccess } from "../../utils/apiResponse";
   try {
     const { user, token } = await authServices.loginUser(req.body);
      res.cookie('token', token, { 
-        maxAge: 900000
+        maxAge: 900000,
+        httpOnly:true,
+        secure:true,
+        sameSite:"none",
+        path:"/",
+        partitioned:true
     });
     res.status(200).json({
       message: "Login successful",
@@ -54,7 +59,12 @@ import { sendSuccess } from "../../utils/apiResponse";
  const logoutController = async (req: Request, res: Response) => {
   try {
 
-    res.clearCookie("token")
+ res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/' // Ensure this matches where the cookie was set
+  });
  
    return sendSuccess(res,{
     message:"Logout succcess fully"
