@@ -9,14 +9,14 @@ import studentRoutes from "./modules/student/student.route";
 import bookingRoutes from "./modules/booking/booking.route";
 import adminRoutes from "./modules/admin/admin.route";
 import {tutorsRouterPublic} from "./modules/tutor/tutor.route";
-
+import cookieParser from "cookie-parser"
 import cors from "cors";
 import { corsConfig } from './config/cors';
 import { notFound } from './middleware/notFound';
 
 const app: Express = express();
 app.use(cors(corsConfig))
-
+app.use(cookieParser());
 app.use(express.json({ limit: '1mb' }));
 app.set("trust proxy", 1);
 
