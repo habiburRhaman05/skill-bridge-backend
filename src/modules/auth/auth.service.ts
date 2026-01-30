@@ -81,6 +81,7 @@ const getCurrentUser = async (userId: string) => {
         select: {
           id: true,
           bio: true,
+          categoryId: true,
           category: true,
           hourlyRate: true,
           subjects:true,

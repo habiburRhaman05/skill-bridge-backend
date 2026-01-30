@@ -10,7 +10,10 @@ const router:Router = Router();
 
 router.get("/profile",authMiddleware,roleMiddleware(["STUDENT"]), studentController.getProfile);
 router.put("/profile",authMiddleware,roleMiddleware(["STUDENT"]), studentController.updateProfile);
+router.post("/profile/avater-change",authMiddleware,roleMiddleware(["STUDENT"]), studentController.updateProfile);
 router.get("/dashboard/stats", studentController.getStudentdashboardStats);
+
+ 
 
 
 export default router;

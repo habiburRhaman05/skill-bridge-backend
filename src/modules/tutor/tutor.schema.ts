@@ -26,11 +26,7 @@ import { z } from "zod";
       z.string().min(2, "Each subject must be at least 2 characters long")
     )
     .min(1, "At least one subject is required"),
-  availability: z
-    .array(
-      z.string().min(5, "Each availability time slot must be at least 5 characters long")
-    )
-    .min(1, "At least one availability time slot is required"),
+ 
  })
 });
 

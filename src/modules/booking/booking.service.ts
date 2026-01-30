@@ -39,9 +39,7 @@ const createBooking = async (
 
 
 
-  const booking = await prisma.$transaction(async (tx) => {
-    // create booking
-    const newBooking = await tx.booking.create({
+   const newBooking = await prisma.booking.create({
       data: {
         studentId,
         tutorId,
@@ -52,15 +50,12 @@ const createBooking = async (
     });
 
     // mark slot booked
-    await tx.availability.update({
+    await prisma.availability.update({
       where: { id: availability.id },
       data: { isBooked: true },
     });
 
-    return newBooking;
-  });
-
-  return booking;
+  return newBooking;
 };
 
 
@@ -76,7 +71,12 @@ const getAllBookings = async (userId: string) => {
 
 
   const tutors = await prisma.tutorProfile.findMany({
-    where: { id: { in: tutorIds } },
+    where: { id: { in: tutorIds }, 
+  
+  },
+  include:{
+    user:true
+  }
   });
 
 

@@ -1,6 +1,6 @@
 
 
-import { toResponse } from "better-auth/*";
+
 import { prisma } from "../../lib/prisma";
 import { StudentProfileUpdate } from "./types";
 
@@ -46,34 +46,17 @@ const  getProfile= async (userId: string) => {
   };
 
 const getStudentStatsData = async (userId: string) => {
-  const now = new Date();
+ 
 
-  const [
-    totalBooking,
-    upcomingBooking,
-    totalReview,
-  ] = await Promise.all([
-    prisma.booking.count({
-      where: { studentId: userId },
-    }),
-    prisma.booking.count({
-      where: {
-        studentId: userId,
-        dateTime: { gte: now },
-      },
-    }),
-    prisma.review.count({
-      where: { studentId: userId },
-    }),
-  ]);
-
-  return {
-    totalBooking,
-    upcomingBooking,
-    totalReview,
-  };
+    const [
+      totalBooking,
+      totalReview,
+    ] = await Promise.all([
+  prisma.booking.count({ where: { studentId: userId } }),
+  prisma.review.count({ where: { studentId: userId } }),
+]);
+return {totalBooking,totalReview}
 };
-
 
 
 export const studentService = {

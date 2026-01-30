@@ -5,10 +5,10 @@ export interface TutorProfileCreatePayload {
   profileAvater: string;
   subjects: string[];    
   hourlyRate: number;       
+  categoryId: string;       
   category: string;       
   availability: string[];  
 }
-
 
 export interface TutorProfileUpdatePayload {
   bio?: string;

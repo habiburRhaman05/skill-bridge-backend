@@ -16,6 +16,7 @@ const createTutorProfile = async (userId: string, payload: TutorProfileCreatePay
       bio: payload.bio,
       subjects: payload.subjects,
       hourlyRate: payload.hourlyRate,
+      categoryId: payload.categoryId,
       category: payload.category
     },
   });

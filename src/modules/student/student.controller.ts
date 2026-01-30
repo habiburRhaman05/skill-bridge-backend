@@ -30,6 +30,24 @@ import { sendSuccess } from "../../utils/apiResponse";
 
     }
   }
+ const updateProfileAvater= async (req: Request, res: Response,next:NextFunction) => {
+    try {
+      const data = req.body;
+      console.log("data",data);
+      
+      // const updated = await studentService.updateProfile(req.user!.userId, data);
+    return sendSuccess(res,{
+        statusCode:200,
+        message:" profile avater updated successfully",
+        data:{
+          profileAvater:"https://static.vecteezy.com/system/resources/thumbnails/032/176/191/small/business-avatar-profile-black-icon-man-of-user-symbol-in-trendy-flat-style-isolated-on-male-profile-people-diverse-face-for-social-network-or-web-vector.jpg"
+        }
+      })
+    } catch (err: any) {
+            next(err)
+
+    }
+  }
   const changePassword=async (req: Request, res: Response,next:NextFunction) => {
     try {
       const { oldPassword, newPassword } = req.body;
@@ -76,5 +94,5 @@ import { sendSuccess } from "../../utils/apiResponse";
   }
 
 export const studentController = {
- getProfile,updateProfile,changePassword,deleteAccount,getStudentdashboardStats
+ getProfile,updateProfile,changePassword,deleteAccount,getStudentdashboardStats,updateProfileAvater
 };
