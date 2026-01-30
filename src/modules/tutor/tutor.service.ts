@@ -28,14 +28,29 @@ const updateTutorProfile = async (userId: string, payload: TutorProfileUpdatePay
   const profile = await prisma.tutorProfile.findUnique({ where: { userId } });
   if (!profile) throw new Error("Tutor profile not found");
 
-  const updated = await prisma.tutorProfile.update({
-    where: { userId },
-    data: {
-      bio: payload.bio ?? profile.bio,
-      hourlyRate: payload.hourlyRate ?? profile.hourlyRate,
-      subjects: payload.subjects ?? profile.subjects,
-    },
-  });
+  const {user,...tutorData} = payload;
+
+
+  const updated = await prisma.$transaction(async (tx) =>{
+    const tutor = await tx.tutorProfile.update({
+          where: { userId },
+    data:tutorData
+    });
+
+    const userData = await tx.user.update({
+     where: { id:userId },
+    data:{
+      name:user.name
+    }
+    });
+
+
+
+    return {
+      userData,
+      tutorProfile:tutor
+    }
+  })
 
   return updated;
 };
@@ -57,14 +72,52 @@ const getTutorSessions = async (userId: string) => {
   });
   if (!profile) throw new Error("Tutor profile not found");
 
-  const sessions = await prisma.booking.findMany({
+ return prisma.booking.findMany({
     where: {
-      tutorId: profile.id
-    }
-  });
+      tutorId:profile.id,
+    },
+    orderBy: {
+      dateTime: "desc",
+    },
+    select: {
+      id: true,
+      status: true,
+      dateTime: true,
+      createdAt: true,
 
-  return sessions
+      availability: {
+        select: {
+          date: true,
+          startTime: true,
+          endTime: true,
+        },
+      },
+
+      tutor: {
+        select: {
+          hourlyRate: true,
+          subjects: true,
+          category: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              profileAvater: true,
+            },
+          },
+        },
+      },
+
+      review: {
+        select: {
+          rating: true,
+          comment: true,
+        },
+      },
+    },
+  });
 };
+
 
 // -------------------- PUT TUTOR CREATE AVAILABITY SLOT --------------------
 
@@ -76,7 +129,7 @@ const addAvailabilityService = async (userId: string, payload: any) => {
   // }
 
   const tutor = await prisma.tutorProfile.findUnique({
-    where: { userId },
+    where: { userId } ,
   });
 
   if (!tutor) {
@@ -129,6 +182,16 @@ const getAvailability = async (tutorUserId: string) => {
     },
     orderBy: [{ date: "asc" }, { startTime: "asc" }],
   });
+};
+// -------------------- GET  ALL   AVAILABITY SLOTS BY TUTORID --------------------
+
+const getAllAvailability = async (tutorUserId: string) => {
+  const slots = await prisma.availability.findMany({
+    where: { tutorId: tutorUserId },
+  });
+
+ 
+  return slots
 };
 // -------------------- DELETE TUTOR  AVAILABITY SLOT --------------------
 
@@ -194,20 +257,32 @@ const markdSessionFinish = async (userId: string, bookingId: string) => {
 
 // -------------------- GET ALL TUTORS LIST  --------------------
 
-const getAllTutors = async () => {
-
-
-
-  const tutors = await prisma.user.findMany({
+ const getAllTutors = async () => {
+  return prisma.user.findMany({
     where: {
-      role: "TUTOR"
-    }
+      role: "TUTOR",
+      tutorProfile: {
+        isNot: null,
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      profileAvater: true,
+      role: true,
+      status: true,
+      createdAt: true,
+
+      tutorProfile: {
+        select: {
+          hourlyRate: true,
+          subjects: true,
+          category: true,
+        },
+      },
+    },
   });
-
-  return tutors
-
-
-
 };
 
 
@@ -269,7 +344,8 @@ export const tutorServices = {
   getAllTutors,
   getTutorProfilePublic,
  getAvailability,
- deleteAvailability
+ deleteAvailability,
+ getAllAvailability
 
 
 }

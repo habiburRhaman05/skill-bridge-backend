@@ -32,6 +32,12 @@ app.use("/api/shared",sharedRoutes) // shared or public apis only
 app.get("/welcome-page",(req,res)=>{
   res.send("welcome to our my app")
 })
+app.get('/check-time', (req, res) => {
+    res.json({
+        serverTime: new Date().toISOString(),
+        localTime: new Date().toLocaleString()
+    });
+});
 
 export const startServer = async () => {
 

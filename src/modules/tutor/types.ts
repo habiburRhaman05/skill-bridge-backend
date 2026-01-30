@@ -12,9 +12,12 @@ export interface TutorProfileCreatePayload {
 
 export interface TutorProfileUpdatePayload {
   bio?: string;
-   categories:any;  
+   category:string;  
+   categoryId:string;  
   hourlyRate?: number;
-  availability?: string[];
+user:{
+  name:string
+}
   subjects?: string[];
 }
 

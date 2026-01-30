@@ -25,7 +25,7 @@ import { sendSuccess } from "../../utils/apiResponse";
   try {
     const { user, token } = await authServices.loginUser(req.body);
      res.cookie('token', token, { 
-        maxAge: 900000,
+       maxAge: 24 * 60 * 60 * 1000,
         httpOnly:true,
         secure:true,
         sameSite:"none",

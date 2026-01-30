@@ -17,6 +17,7 @@ router.get("/sessions",authMiddleware,roleMiddleware(["TUTOR"]), tutorController
 router.put("/sessions/:sessionId/finish-session",authMiddleware,roleMiddleware(["TUTOR"]), tutorControllers.markdSessionFinishController);
 // add availibity slot 
 router.put("/availability",authMiddleware,roleMiddleware(["TUTOR"]),validateRequest(tutorSchemas.addAvailabilitySchema), tutorControllers.addAvailabilityController);
+router.get("/availability",authMiddleware,roleMiddleware(["TUTOR"]), tutorControllers.getAllAvailabilitys);
 
 router.delete(
   "/availability/:id",

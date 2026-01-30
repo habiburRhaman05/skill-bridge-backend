@@ -49,11 +49,26 @@ import { tutorServices } from "./tutor.service";
       res.status(400).json({ error: error.message });
     }
   }
-  // -------------------- PUT TUTOR ADD AVIAVLEITY --------------------
+  // -------------------- GET TUTOR  AVIAVLEITY --------------------
  const getAvailability = async (req: Request, res: Response) => {
     try {
      const tutorUserId =req.user?.userId!;
   const result = await tutorServices.getAvailability(tutorUserId);
+
+  res.status(200).json({
+    success: true,
+    data: result,
+  });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+  // -------------------- GET TUTOR  AVIAVLEITY  SLOTS--------------------
+ const getAllAvailabilitys = async (req: Request, res: Response) => {
+    try {
+     const tutorUserId =req.user?.userId!;
+  const result = await tutorServices.getAllAvailability(tutorUserId);
+console.log(result);
 
   res.status(200).json({
     success: true,
@@ -155,6 +170,6 @@ import { tutorServices } from "./tutor.service";
     gettingAllTutorsLists,
     deleteAvailability,
     getAvailability,
-    getTutorProfileDetails
-   
+    getTutorProfileDetails,
+   getAllAvailabilitys
  }
