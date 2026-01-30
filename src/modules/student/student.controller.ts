@@ -56,6 +56,25 @@ import { sendSuccess } from "../../utils/apiResponse";
     next(err)
     }
   }
+
+
+
+  // ============== FRONTEND UI RENDERING LOGIC =======================
+
+  const getStudentdashboardStats = async (req:Request,res:Response,next:NextFunction)=>{
+    try {
+      const userId =  req.user?.userId
+      const stats = await studentService.getStudentStatsData(userId!);
+      return sendSuccess(res,{
+        statusCode:200,
+        data:stats,
+        message:"fetch dashboard stats successfully"
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
 export const studentController = {
- getProfile,updateProfile,changePassword,deleteAccount
+ getProfile,updateProfile,changePassword,deleteAccount,getStudentdashboardStats
 };
