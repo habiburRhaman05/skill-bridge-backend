@@ -38,6 +38,7 @@ app.get('/check-time', (req, res) => {
         localTime: new Date().toLocaleString()
     });
 });
+app.get("/ping", (req, res) => res.send("Awake"));
 
 export const startServer = async () => {
 
