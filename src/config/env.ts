@@ -6,6 +6,7 @@ dotenv.config();
 const envSchema = z.object({
   PORT: z.coerce.number().default(8000),
   DATABASE_URL: z.string().url().or(z.string().startsWith('postgresql://')),
+  JWT_SECRET: z.string()
 });
 
 const parsed = envSchema.safeParse(process.env);

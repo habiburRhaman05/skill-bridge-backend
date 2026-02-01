@@ -1,32 +1,62 @@
 
+envConfig
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { envConfig } from "../config/env";
+
+const JWT_SECRET = envConfig.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET is not defined");
+}
 
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
+export interface AuthRequest extends Request {
+  user?: {
+    userId: string;
+    role: "STUDENT" | "TUTOR" | "ADMIN";
+  };
+}
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction) {
-  const authHeader = req.headers.authorization;
-
-  
-  if (!authHeader) return res.status(401).json({ error: "Authorization header missing" });
-
-  const token = authHeader.split(" ")[1];
-  if (!token) return res.status(401).json({ error: "Token missing" });
-
+export async function authMiddleware(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) {
   try {
+    //  Get token 
+    const cookieToken = req.cookies?.token;
+    const headerToken = req.headers.authorization?.startsWith("Bearer ")
+      ? req.headers.authorization.split(" ")[1]
+      : null;
+
+    const token = cookieToken || headerToken;
+
+    if (!token) {
+      return res.status(401).json({ error: "Authentication token missing" });
+    }
+
+    // Verify token
     const payload = jwt.verify(token, JWT_SECRET) as JwtPayload;
-   
-    
+
+    if (!payload?.userId || !payload?.role) {
+      return res.status(401).json({ error: "Invalid token payload" });
+    }
+
+    // Optional DB check (recommended) comment for fast db query
+    // await authServices.isUserExist(payload.userId, payload.role);
+
+    // save info in request
     req.user = {
-      userId:payload.userId,
-      role:payload.role
-    }; // attach to request
+      userId: payload.userId,
+      role: payload.role,
+    };
+
     next();
-  } catch {
-    return res.status(401).json({ error: "Invalid token" });
+  } catch (error) {
+    return res.status(401).json({ error: "Invalid or expired token" });
   }
 }
+
 
 export function roleMiddleware(allowedRoles: ("STUDENT" | "TUTOR" | "ADMIN")[]) {
   return (req: Request, res: Response, next: NextFunction) => {

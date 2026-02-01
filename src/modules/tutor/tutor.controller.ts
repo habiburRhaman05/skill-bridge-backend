@@ -1,6 +1,7 @@
 
 import { NextFunction, Request, Response } from "express";
 import { tutorServices } from "./tutor.service";
+import { sendSuccess } from "../../utils/apiResponse";
 
 
 // -------------------- CREATE PROFILE --------------------
@@ -113,18 +114,18 @@ console.log(result);
   }
   }
   // -------------------- PUT MARKD SESSION FINISH  --------------------
- const markdSessionFinishController = async (req: Request, res: Response) => {
+ const markdSessionFinishController = async (req: Request, res: Response,next:NextFunction) => {
     try {
-      const userId = req.user?.userId!;
+      const {tutorId,status} = req.body
       const sessionId = req.params.sessionId as string
 
-      const updateSession = await tutorServices.markdSessionFinish(userId,sessionId);
-      res.status(200).json({
+      const updateSession = await tutorServices.markdSessionFinish(tutorId,sessionId,status);
+      sendSuccess(res,{
         message:"session marked sucessfully",
         data:updateSession
       });
     } catch (error: any) {
-      res.status(400).json({ error: error.message });
+     next(error)
     }
   }
   // -------------------- GET ALL TUTORS LIST CONTROLLER  --------------------
@@ -137,6 +138,7 @@ console.log(result);
       maxPrice: req.query.maxPrice as string | undefined,
       minPrice: req.query.minPrice as string | undefined,
       rating: req.query.rating as string | undefined,
+      subject: req.query.subject as string | undefined,
     };
 
     const allTutors = await tutorServices.getAllTutors(filters);

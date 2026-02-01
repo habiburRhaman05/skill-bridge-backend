@@ -50,5 +50,13 @@ export type TutorFilters = {
   rating?: string | undefined;
   minPrice?: string | undefined;
   maxPrice?: string | undefined;
+  subject?: string | undefined;
   q?: string | undefined;
 };
+
+export type StatusEnum = {
+      CONFIRMED: 'CONFIRMED',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+  
+}

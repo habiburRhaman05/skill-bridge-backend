@@ -17,8 +17,8 @@ const createReview = async (req:Request,res:Response,next:NextFunction) =>{
 }
 const getAllReview = async (req:Request,res:Response,next:NextFunction) =>{
     try {
-        const studentId = req.params.tutorId
-        const newReview = await reviewsServives.getAllReview(studentId as string);
+        const tutorId = req.params.tutorId
+        const newReview = await reviewsServives.getAllReview(tutorId as string);
         return sendSuccess(res,{
             statusCode:201,
             message:"your Review fetch successfully",

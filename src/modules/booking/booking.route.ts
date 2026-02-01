@@ -11,6 +11,7 @@ const router:Router = Router();
 router.post("/",authMiddleware,roleMiddleware(["STUDENT"]),validateRequest(bookingSchemas.bookingCreateSchema),bookingControllers.createBooking)
 router.get("/",authMiddleware,roleMiddleware(["STUDENT"]),bookingControllers.getAllBookings)
 router.get("/:id",authMiddleware,roleMiddleware(["STUDENT"]),bookingControllers.getBookingsDeatils)
+router.put("/:id/cancel-booking",authMiddleware,roleMiddleware(["STUDENT"]),bookingControllers.cancelBooking)
 
 
 

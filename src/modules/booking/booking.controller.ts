@@ -34,7 +34,7 @@ next(error)
 const getBookingsDeatils  = async (req:Request,res:Response,next:NextFunction)=>{
   try {
     const bookingId = req.params.id as string
-    console.log(bookingId);
+
     
     const booking = await bookingServices.getBookingDetails(bookingId);
     return sendSuccess(res,{
@@ -46,9 +46,23 @@ const getBookingsDeatils  = async (req:Request,res:Response,next:NextFunction)=>
 next(error)
   }
 }
+const cancelBooking  = async (req:Request,res:Response,next:NextFunction)=>{
+  try {
+       const {status} = req.body
+       const sessionId = req.params.sessionId as string
+       const studentId = req.user?.userId as string
+ 
+       const updateSession = await bookingServices.cancelBooking(studentId,sessionId,status);
+       sendSuccess(res,{
+         message:"session cancel sucessfully",
+         data:updateSession
+       });
+     } catch (error: any) {
+      next(error)
+     }
+}
 
  export const bookingControllers = {
     
    createBooking,
-   getBookingsDeatils,getAllBookings
- }
+   getBookingsDeatils,getAllBookings,cancelBooking}

@@ -126,7 +126,7 @@ const isUserExist = async (userId:string,model:string) =>{
     
     case "TUTOR":
       const tutor = await prisma.tutorProfile.findUnique({
-        where:{userId:userId}
+        where:{id:userId}
       });
       if(!tutor){
         throw new AppError("tutor profilr not found")

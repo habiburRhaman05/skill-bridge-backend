@@ -2,7 +2,7 @@
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
 import { authServices } from "../auth/auth.service";
-import { TutorFilters, TutorProfileCreatePayload, TutorProfileUpdatePayload } from "./types";
+import { StatusEnum, TutorFilters, TutorProfileCreatePayload, TutorProfileUpdatePayload } from "./types";
 
 // -------------------- CREATE TUTOR PROFILE --------------------
 const createTutorProfile = async (userId: string, payload: TutorProfileCreatePayload) => {
@@ -98,6 +98,7 @@ const getTutorSessions = async (userId: string) => {
           hourlyRate: true,
           subjects: true,
           category: true,
+          id:true,
           user: {
             select: {
               id: true,
@@ -227,15 +228,17 @@ const deleteAvailability = async (
   });
 };
 
+
 // -------------------- PUT MARK AS SESSION FINISH  --------------------
 
-const markdSessionFinish = async (userId: string, bookingId: string) => {
+const markdSessionFinish = async (userId: string, bookingId: string,status:string) => {
 
   await authServices.isUserExist(userId, "TUTOR");
 
-  const isBookingExist = await prisma.booking.findFirst({
+
+  const isBookingExist = await prisma.booking.findUnique({
     where: {
-      tutorId: userId
+      id: bookingId
     }
   })
 
@@ -247,12 +250,11 @@ const markdSessionFinish = async (userId: string, bookingId: string) => {
       id: bookingId
     },
     data: {
-      status: "COMPLETED"
+      status:status === "COMPLETED" ? "COMPLETED" : "CANCELLED"
     }
   });
 
   return updatedData
-
 };
 
 // -------------------- GET ALL TUTORS LIST  --------------------
@@ -260,72 +262,74 @@ const markdSessionFinish = async (userId: string, bookingId: string) => {
 
 
 const getAllTutors = async (filters: TutorFilters) => {
-  const { category, q, rating, minPrice, maxPrice } = filters;
-
-
-  const isCategoryOnly =
-    !!category && !q && !rating && !minPrice && !maxPrice;
+  const { category, q, rating, minPrice, maxPrice,subject } = filters;
 
   return prisma.user.findMany({
     where: {
       role: "TUTOR",
       status: "ACTIVE",
 
-  
       tutorProfile: {
         isNot: null,
         is: {
-          // ✅ Category-only mode
-          ...(isCategoryOnly && {
+
+          // category
+          ...(category && {
             categoryId: category,
           }),
 
-          // ✅ Advanced price filters (category ignored)
-          ...(!isCategoryOnly &&
-            (minPrice || maxPrice) && {
-              hourlyRate: {
-                ...(minPrice && { gte: Number(minPrice) }),
-                ...(maxPrice && { lte: Number(maxPrice) }),
-              },
-            }),
-        },
-      },
+          ...(minPrice || maxPrice
+            ? {
+                hourlyRate: {
+                  ...(minPrice && { gte: Number(minPrice) }),
+                  ...(maxPrice && { lte: Number(maxPrice) }),
+                },
+              }
+            : {}),
 
-      // 🔍 Search 
-      ...(!isCategoryOnly &&
-        q && {
-          OR: [
-            {
-              name: {
-                contains: q,
-                mode: "insensitive",
-              },
-            },
-            {
-              tutorProfile: {
-                is: {
-                  subjects: {
-                    has: q,
+          // rating
+          ...(rating && {
+            bookings: {
+              some: {
+                review: {
+                  rating: {
+                    gte: Number(rating),
                   },
                 },
               },
             },
-          ],
-        }),
+          }),
 
-      // Rating 
-      ...(!isCategoryOnly &&
-        rating && {
-          studentBookings: {
-            some: {
-              review: {
-                rating: {
-                  gte: Number(rating),
+          ...(
+            subject && {
+              subjects:{
+                has:subject
+              }
+            }
+          )
+        },
+      },
+
+      // 🔍 Search
+      ...(q && {
+        OR: [
+          {
+            name: {
+              contains: q,
+              mode: "insensitive",
+            },
+          },
+          {
+            tutorProfile: {
+              is: {
+                subjects: {
+                  has: q,
                 },
               },
             },
           },
-        }),
+        ],
+      }),
     },
 
     select: {

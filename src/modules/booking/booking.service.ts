@@ -1,5 +1,6 @@
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
+import { authServices } from "../auth/auth.service";
 
 
 interface CreateBookingPayload {
@@ -121,8 +122,35 @@ const getBookingDetails = async (bookingId: string) => {
   };
 };
 
+  const cancelBooking = async (userId: string, bookingId: string,status:string) => {
+
+  await authServices.isUserExist(userId, "USER");
+
+
+  const isBookingExist = await prisma.booking.findUnique({
+    where: {
+      id: bookingId
+    }
+  })
+
+  if (!isBookingExist) {
+    throw new AppError("Bookign not found")
+  }
+  const updatedData = await prisma.booking.update({
+    where: {
+      id: bookingId
+    },
+    data: {
+      status:status === "COMPLETED" ? "COMPLETED" : "CANCELLED"
+    }
+  });
+
+  return updatedData
+
+};
+
 export const bookingServices = {
   createBooking,
   getBookingDetails,
-  getAllBookings
+  getAllBookings,cancelBooking
 };
