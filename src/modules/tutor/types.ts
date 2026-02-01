@@ -45,3 +45,10 @@ export interface AddAvailabilityPayload {
   startTime: string;
   endTime: string;
 }
+export type TutorFilters = {
+  category?: string | undefined;
+  rating?: string | undefined;
+  minPrice?: string | undefined;
+  maxPrice?: string | undefined;
+  q?: string | undefined;
+};

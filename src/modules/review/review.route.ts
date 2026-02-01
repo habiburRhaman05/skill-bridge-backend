@@ -9,6 +9,8 @@ const router:Router = Router();
 
 
 router.post("/",authMiddleware,roleMiddleware(["STUDENT"]),validateRequest(reviewSchemas.createReviewSchema),reviewControllers.createReview)
+// router.get("/:studentId",authMiddleware,roleMiddleware(["STUDENT"]),validateRequest(reviewSchemas.createReviewSchema),reviewControllers.createReview)
+router.get("/:tutorId",authMiddleware,roleMiddleware(["TUTOR"]),reviewControllers.getAllReview)
 
 
 

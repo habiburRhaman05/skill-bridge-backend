@@ -12,6 +12,7 @@ export const tutorsRouterPublic:Router = Router()
 router.post("/profile", authMiddleware,roleMiddleware(["TUTOR"]),validateRequest(tutorSchemas.createTutorProfileSchema), tutorControllers.createProfile);
 router.put("/profile",authMiddleware,roleMiddleware(["TUTOR"]), tutorControllers.updateProfile);
 router.get("/sessions",authMiddleware,roleMiddleware(["TUTOR"]), tutorControllers.getTutorSessions);
+router.get("/dashboard-data/:tutorId",authMiddleware,roleMiddleware(["TUTOR"]), tutorControllers.getTutorDashboard);
 
 // mark session complete
 router.put("/sessions/:sessionId/finish-session",authMiddleware,roleMiddleware(["TUTOR"]), tutorControllers.markdSessionFinishController);

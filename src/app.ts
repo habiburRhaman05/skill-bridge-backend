@@ -9,6 +9,7 @@ import studentRoutes from "./modules/student/student.route";
 import bookingRoutes from "./modules/booking/booking.route";
 import sharedRoutes from "./modules/shared/shared.route";
 import adminRoutes from "./modules/admin/admin.route";
+import reviewRoutes from "./modules/review/review.route";
 import {tutorsRouterPublic} from "./modules/tutor/tutor.route";
 import cookieParser from "cookie-parser"
 import cors from "cors";
@@ -24,6 +25,7 @@ app.use(express.json({ limit: '1mb' }));
 
 app.use("/api/auth",authRoutes) // auth routes
 app.use("/api/tutor",tutorRoutes) // only tutor private routes
+app.use("/api/review",reviewRoutes) // only tutor private routes
 app.use("/api/tutors",tutorsRouterPublic) // tutors public access routes
 app.use("/api/booking",bookingRoutes) // student only booking routes
 app.use("/api/student",studentRoutes) // student only 

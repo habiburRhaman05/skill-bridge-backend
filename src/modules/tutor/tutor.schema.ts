@@ -36,9 +36,6 @@ const addAvailabilitySchema = z.object({
       .string({
         required_error: "Date is required",
       })
-      .refine((val) => !isNaN(Date.parse(val)), {
-        message: "Invalid date format (YYYY-MM-DD)",
-      })
       .refine((val) => {
         const inputDate = new Date(val);
         const today = new Date();
@@ -53,16 +50,10 @@ const addAvailabilitySchema = z.object({
       }),
 
     startTime: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):[0-5]\d$/, {
-        message: "startTime must be HH:mm (24-hour)",
-      }),
+      .string(),
 
     endTime: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):[0-5]\d$/, {
-        message: "endTime must be HH:mm (24-hour)",
-      }),
+      .string(),
   }),
 });
 

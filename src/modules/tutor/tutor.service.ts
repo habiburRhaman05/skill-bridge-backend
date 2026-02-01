@@ -2,7 +2,7 @@
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
 import { authServices } from "../auth/auth.service";
-import { TutorProfileCreatePayload, TutorProfileUpdatePayload } from "./types";
+import { TutorFilters, TutorProfileCreatePayload, TutorProfileUpdatePayload } from "./types";
 
 // -------------------- CREATE TUTOR PROFILE --------------------
 const createTutorProfile = async (userId: string, payload: TutorProfileCreatePayload) => {
@@ -257,14 +257,77 @@ const markdSessionFinish = async (userId: string, bookingId: string) => {
 
 // -------------------- GET ALL TUTORS LIST  --------------------
 
- const getAllTutors = async () => {
+
+
+const getAllTutors = async (filters: TutorFilters) => {
+  const { category, q, rating, minPrice, maxPrice } = filters;
+
+
+  const isCategoryOnly =
+    !!category && !q && !rating && !minPrice && !maxPrice;
+
   return prisma.user.findMany({
     where: {
       role: "TUTOR",
+      status: "ACTIVE",
+
+  
       tutorProfile: {
         isNot: null,
+        is: {
+          // ✅ Category-only mode
+          ...(isCategoryOnly && {
+            categoryId: category,
+          }),
+
+          // ✅ Advanced price filters (category ignored)
+          ...(!isCategoryOnly &&
+            (minPrice || maxPrice) && {
+              hourlyRate: {
+                ...(minPrice && { gte: Number(minPrice) }),
+                ...(maxPrice && { lte: Number(maxPrice) }),
+              },
+            }),
+        },
       },
+
+      // 🔍 Search 
+      ...(!isCategoryOnly &&
+        q && {
+          OR: [
+            {
+              name: {
+                contains: q,
+                mode: "insensitive",
+              },
+            },
+            {
+              tutorProfile: {
+                is: {
+                  subjects: {
+                    has: q,
+                  },
+                },
+              },
+            },
+          ],
+        }),
+
+      // Rating 
+      ...(!isCategoryOnly &&
+        rating && {
+          studentBookings: {
+            some: {
+              review: {
+                rating: {
+                  gte: Number(rating),
+                },
+              },
+            },
+          },
+        }),
     },
+
     select: {
       id: true,
       name: true,
@@ -302,6 +365,7 @@ const getTutorProfilePublic = async (tutorUserId: string) => {
           id: true,
           name: true,
           email: true,
+          role:true
         },
       },
       availability:true
@@ -337,6 +401,60 @@ const getTutorProfilePublic = async (tutorUserId: string) => {
 };
 
 
+const tutorDashboardData = async (tutorId:string) => {
+
+  const tutorData = await prisma.tutorProfile.findUnique({
+    where: { id: tutorId },
+    include: {
+      user: { select: { name: true } },
+      availability: {
+        where: { isBooked: false }, 
+        orderBy: { date: 'asc' },
+        take: 5
+      },
+ 
+      bookings: {
+        where: { status: 'CONFIRMED' },
+        include: {
+          student: {
+            select: { name: true, profileAvater: true }
+          }
+        },
+        orderBy: { dateTime: 'asc' },
+        take: 5
+      }
+    }
+  });
+
+  
+  const stats = await prisma.$transaction([
+   
+    prisma.booking.count({
+      where: { tutorId, status: 'COMPLETED' },
+    }),
+  
+    prisma.review.aggregate({
+      where: { tutorId },
+      _avg: { rating: true },
+      _count: { id: true }
+    }),
+  
+    prisma.review.findMany({
+      where: { tutorId },
+      orderBy: { createdAt: 'desc' },
+      take: 1,
+      include: { student: { select: { name: true } } }
+    })
+  ]);
+
+  return {
+    tutorData,
+    totalSessions: stats[0],
+    ratingData: stats[1],
+    recentReview: stats[2][0]
+  };
+};
+
 
 export const tutorServices = {
   getTutorProfile, createTutorProfile, updateTutorProfile, getTutorSessions, addAvailabilityService,
@@ -345,6 +463,7 @@ export const tutorServices = {
   getTutorProfilePublic,
  getAvailability,
  deleteAvailability,
+ tutorDashboardData,
  getAllAvailability
 
 

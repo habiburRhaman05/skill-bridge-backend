@@ -39,4 +39,30 @@ const createReview  = async (payload:createReviewPayload)=>{
   
 }
 
-export const reviewsServives = {createReview}
+const getAllReview = async (tutorId:string)=>{
+  const reviews =await prisma.review.findMany({
+    where:{
+      tutorId
+    },
+    include: {
+    student: {
+      select: {
+        id: true,
+        name: true,
+        profileAvater: true, // স্টুডেন্টের নাম ও ছবি দেখানোর জন্য
+      },
+    },
+    booking: {
+      select: {
+        dateTime: true, // কোন সময়ের বুকিং ছিল তা জানার জন্য
+      },
+    },
+  },
+  orderBy: {
+    createdAt: 'desc', // নতুন রিভিউগুলো আগে দেখানোর জন্য
+  },
+  })
+  return reviews
+}
+
+export const reviewsServives = {createReview,getAllReview}

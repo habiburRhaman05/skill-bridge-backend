@@ -33,7 +33,9 @@ next(error)
 }
 const getBookingsDeatils  = async (req:Request,res:Response,next:NextFunction)=>{
   try {
-    const bookingId = (req as any).params.bookingId
+    const bookingId = req.params.id as string
+    console.log(bookingId);
+    
     const booking = await bookingServices.getBookingDetails(bookingId);
     return sendSuccess(res,{
       statusCode:200,

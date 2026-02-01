@@ -15,5 +15,18 @@ const createReview = async (req:Request,res:Response,next:NextFunction) =>{
      next(error)   
     }
 }
+const getAllReview = async (req:Request,res:Response,next:NextFunction) =>{
+    try {
+        const studentId = req.params.tutorId
+        const newReview = await reviewsServives.getAllReview(studentId as string);
+        return sendSuccess(res,{
+            statusCode:201,
+            message:"your Review fetch successfully",
+            data:newReview
+        })
+    } catch (error) {
+     next(error)   
+    }
+}
 
-export const reviewControllers = {createReview}
+export const reviewControllers = {createReview,getAllReview}

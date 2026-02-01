@@ -44,25 +44,41 @@ const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 };
 
 // -------------------- LOGIN --------------------
- const loginUser = async (payload: LoginPayload) => {
+const loginUser = async (payload: LoginPayload) => {
   const { email, password } = payload;
 
-  const user = await prisma.user.findUnique({ where: { email } });
-
-
-  if (!user) throw new Error("Invalid credentials");
-  if (user.status === UserStatus.BANNED) throw new Error("User is banned");
-
-
-  const valid = await bcrypt.compare(password, user.password);
-  if (!valid) throw new Error("Invalid credentials");
-
-  const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, {
-    expiresIn: "7d",
+  const user = await prisma.user.findUnique({
+    where: { email },
   });
 
-  return { user, token };
+  if (!user) {
+    throw new Error("Invalid credentials");
+  }
+
+  if (user.status === UserStatus.BANNED) {
+    throw new Error("User is banned");
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    throw new Error("Invalid credentials");
+  }
+
+  const token = jwt.sign(
+    { userId: user.id, role: user.role },
+    JWT_SECRET,
+    { expiresIn: "7d" }
+  );
+
+  // ✅ Remove password before returning user
+  const { password: _password, ...safeUser } = user;
+
+  return {
+    user: safeUser,
+    token,
+  };
 };
+
 
 // -------------------- GET CURRENT USER --------------------
 const getCurrentUser = async (userId: string) => {

@@ -130,16 +130,25 @@ console.log(result);
   // -------------------- GET ALL TUTORS LIST CONTROLLER  --------------------
 
  const gettingAllTutorsLists = async (req: Request, res: Response,next:NextFunction) => {
-    try {
-      const allTutors = await tutorServices.getAllTutors();
-     return res.status(200).json({
-      success:true,
-      message:"fetch tutors successfully",
-      data:allTutors
-     })
-    } catch (error: any) {
-     next(error)
-    }
+  try {
+    const filters = {
+      category: req.query.category as string | undefined,
+      q: req.query.q as string | undefined,
+      maxPrice: req.query.maxPrice as string | undefined,
+      minPrice: req.query.minPrice as string | undefined,
+      rating: req.query.rating as string | undefined,
+    };
+
+    const allTutors = await tutorServices.getAllTutors(filters);
+
+    return res.status(200).json({
+      success: true,
+      message: "Fetch tutors successfully",
+      data: allTutors,
+    });
+  } catch (error) {
+    next(error);
+  }
   }
 
 
@@ -160,6 +169,53 @@ console.log(result);
   }
 
 
+  const getTutorDashboard = async (req: Request, res: Response,next:NextFunction) => {
+  try {
+    // ১. ইউজার টোকেন থেকে টিউটর আইডি নেওয়া (Auth Middleware থেকে আসা)
+    // যদি আপনার রুট প্যারামিটারে আইডি থাকে তবে: const { id } = req.params;
+    const tutorId = req.params.tutorId; 
+
+    // ২. সার্ভিস কল করা
+    const dashboardData = await tutorServices.tutorDashboardData(tutorId as string);
+
+    // ৩. যদি টিউটর প্রোফাইল না পাওয়া যায়
+    if (!dashboardData.tutorData) {
+      return res.status(404).json({
+        success: false,
+        message: "Tutor profile not found!",
+      });
+    }
+
+    // ৪. সাকসেস রেসপন্স
+    res.status(200).json({
+      success: true,
+      message: "Dashboard data fetched successfully",
+      data: {
+        profile: {
+          name: dashboardData.tutorData.user.name,
+          totalSessions: dashboardData.totalSessions,
+          avgRating: dashboardData.ratingData._avg.rating || 0,
+          totalReviews: dashboardData.ratingData._count.id,
+        },
+        upcomingSessions: dashboardData.tutorData.bookings,
+        availability: dashboardData.tutorData.availability,
+        recentFeedback: dashboardData.recentReview ? {
+          comment: dashboardData.recentReview.comment,
+          studentName: dashboardData.recentReview.student.name,
+        } : null
+      }
+    });
+
+  } catch (error:any) {
+    console.error("Dashboard Controller Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+};
+
  export const tutorControllers = {
     createProfile,
     updateProfile,
@@ -171,5 +227,6 @@ console.log(result);
     deleteAvailability,
     getAvailability,
     getTutorProfileDetails,
-   getAllAvailabilitys
+   getAllAvailabilitys,
+   getTutorDashboard
  }
