@@ -23,8 +23,8 @@ export async function authMiddleware(
   next: NextFunction
 ) {
   try {
-    //  Get token 
     const cookieToken = req.cookies?.token;
+
     const headerToken = req.headers.authorization?.startsWith("Bearer ")
       ? req.headers.authorization.split(" ")[1]
       : null;
@@ -35,24 +35,26 @@ export async function authMiddleware(
       return res.status(401).json({ error: "Authentication token missing" });
     }
 
-    // Verify token
-    const payload = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    const payload =  jwt.verify(token, JWT_SECRET) as JwtPayload;
 
     if (!payload?.userId || !payload?.role) {
       return res.status(401).json({ error: "Invalid token payload" });
     }
+ 
+    
+    console.log("request",req.user);
+    console.log("payload",payload);
+    
 
-    // Optional DB check (recommended) comment for fast db query
-    // await authServices.isUserExist(payload.userId, payload.role);
-
-    // save info in request
     req.user = {
       userId: payload.userId,
       role: payload.role,
     };
 
     next();
-  } catch (error) {
+  } catch(error) {
+    console.log("error",error);
+    
     return res.status(401).json({ error: "Invalid or expired token" });
   }
 }
@@ -61,6 +63,7 @@ export async function authMiddleware(
 export function roleMiddleware(allowedRoles: ("STUDENT" | "TUTOR" | "ADMIN")[]) {
   return (req: Request, res: Response, next: NextFunction) => {
     const user = (req as any).user;
+   
     if (!user || !allowedRoles.includes(user.role)) {
       return res.status(403).json({ error: "Forbidden: Insufficient role" });
     }

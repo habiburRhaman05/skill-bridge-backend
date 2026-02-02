@@ -6,7 +6,7 @@ import { Role, UserStatus } from "../../../generated/prisma/enums";
 import { RegisterPayload, LoginPayload, CurrentUserResponse } from "./types";
 import { AppError } from "../../utils/AppError";
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
+const JWT_SECRET = process.env.JWT_SECRET!
 
 // -------------------- REGISTER --------------------
  const registerUser = async (payload: RegisterPayload) => {
@@ -63,7 +63,6 @@ const loginUser = async (payload: LoginPayload) => {
   if (!isPasswordValid) {
     throw new Error("Invalid credentials");
   }
-
   const token = jwt.sign(
     { userId: user.id, role: user.role },
     JWT_SECRET,

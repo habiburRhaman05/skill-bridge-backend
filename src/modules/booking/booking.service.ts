@@ -122,9 +122,11 @@ const getBookingDetails = async (bookingId: string) => {
   };
 };
 
-  const cancelBooking = async (userId: string, bookingId: string,status:string) => {
+  const cancelBooking = async (userId: string, bookingId: string,status: "CANCELLED") => {
 
   await authServices.isUserExist(userId, "USER");
+
+console.log("bookingId",bookingId);
 
 
   const isBookingExist = await prisma.booking.findUnique({
@@ -136,16 +138,25 @@ const getBookingDetails = async (bookingId: string) => {
   if (!isBookingExist) {
     throw new AppError("Bookign not found")
   }
-  const updatedData = await prisma.booking.update({
+  const booking = await prisma.booking.update({
     where: {
       id: bookingId
     },
     data: {
-      status:status === "COMPLETED" ? "COMPLETED" : "CANCELLED"
+      status:"CANCELLED"
     }
   });
 
-  return updatedData
+  await prisma.availability.update({
+    where:{
+      id:booking.availabilityId
+    },
+    data:{
+      isBooked:false
+    }
+  })
+
+  return booking
 
 };
 

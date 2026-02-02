@@ -11,6 +11,8 @@ const getProfile = async (userId: string) => {
 };
 
 const getAllUsers = async () => {
+  console.log("srvices");
+  
   return await prisma.user.findMany({
     select: {
       id: true,

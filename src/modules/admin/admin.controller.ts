@@ -16,6 +16,8 @@ const getProfile = async (req: Request, res: Response, next: NextFunction) => {
 };
 const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    console.log("main user",req.user);
+    
     const users = await adminServices.getAllUsers();
     return sendSuccess(res, {
       statusCode: 200,

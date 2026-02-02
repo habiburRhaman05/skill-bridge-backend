@@ -2,6 +2,7 @@
 import { NextFunction, Request, Response } from "express";
 import { tutorServices } from "./tutor.service";
 import { sendSuccess } from "../../utils/apiResponse";
+import { prisma } from "../../lib/prisma";
 
 
 // -------------------- CREATE PROFILE --------------------
@@ -218,6 +219,52 @@ console.log(result);
   }
 };
 
+const getDashboardData = async (req:Request,res:Response,next:NextFunction) =>{
+   try {
+    const tutorId = req.params.tutorId as string
+ const totalStudentsResult = await prisma.booking.groupBy({
+    by: ["studentId"],
+    where: { tutorId: tutorId },
+  
+  });
+  const totalStudents = totalStudentsResult.length;
+
+  // -----------------------------
+  // 2️⃣ Active Bookings
+  // -----------------------------
+  const activeBookings = await prisma.booking.count({
+    where: {
+      tutorId: tutorId,
+      status: "CONFIRMED",
+    },
+  });
+
+  // -----------------------------
+  // 3️⃣ Avg Rating & Total Reviews
+  // -----------------------------
+  const reviews = await prisma.review.aggregate({
+    where: { tutorId: tutorId },
+    _avg: { rating: true },
+    _count: { id: true },
+  });
+
+  const data = {
+    totalStudents,
+    activeBookings,
+    avgRating: reviews._avg.rating ?? 0,
+    totalReviews: reviews._count.id,
+  };
+
+  return sendSuccess(res,{
+    message:"fetch successfully",
+    data
+  })
+    
+   } catch (error) {
+    next(error)
+   }
+}
+
  export const tutorControllers = {
     createProfile,
     updateProfile,
@@ -230,5 +277,6 @@ console.log(result);
     getAvailability,
     getTutorProfileDetails,
    getAllAvailabilitys,
-   getTutorDashboard
+   getTutorDashboard,
+   getDashboardData
  }

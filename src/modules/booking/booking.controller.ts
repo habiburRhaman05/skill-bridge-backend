@@ -49,7 +49,7 @@ next(error)
 const cancelBooking  = async (req:Request,res:Response,next:NextFunction)=>{
   try {
        const {status} = req.body
-       const sessionId = req.params.sessionId as string
+       const sessionId = req.params.id as string
        const studentId = req.user?.userId as string
  
        const updateSession = await bookingServices.cancelBooking(studentId,sessionId,status);

@@ -17,7 +17,7 @@ router.get("/users", adminControllers.getAllUsers);
 router.get("/bookings", adminControllers.getAllBookings);
 router.post("/categories",validateRequest(adminSchemas.createCategorySchema), adminControllers.createNewCategory);
 router.delete("/categories/:categoryId", adminControllers.deleteCategory);
-router.put("/categories/:categoryId", adminControllers.updateCategory);
+router.patch("/categories/:categoryId", adminControllers.updateCategory);
 router.get("/bookings", adminControllers.getAllBookings);
 
 router.patch("/users/:id/status", adminControllers.updateUserStatus);

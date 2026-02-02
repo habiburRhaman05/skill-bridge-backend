@@ -21,26 +21,28 @@ import { sendSuccess } from "../../utils/apiResponse";
 };
 
 // -------------------- LOGIN --------------------
- const loginController = async (req: Request, res: Response) => {
+const loginController = async (req: Request, res: Response) => {
   try {
     const { user, token } = await authServices.loginUser(req.body);
-     res.cookie('token', token, { 
-       maxAge: 24 * 60 * 60 * 1000,
-        httpOnly:true,
-        secure:true,
-        sameSite:"none",
-        path:"/",
-        partitioned:true
+
+    const isProd = process.env.NODE_ENV === "production";
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProd,                     // HTTPS only
+      sameSite: isProd ? "none" : "lax",  // prod vs local
+      path: "/",
     });
-    res.status(200).json({
+
+    return res.status(200).json({
       message: "Login successful",
       user,
-      token,
     });
   } catch (error: any) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
+
 
 // -------------------- GET CURRENT USER --------------------
  const meController = async (req: Request, res: Response) => {
@@ -56,23 +58,25 @@ import { sendSuccess } from "../../utils/apiResponse";
 };
     // --------------------  POST LOGOUT CURRENT USER --------------------
 
- const logoutController = async (req: Request, res: Response) => {
+const logoutController = async (req: Request, res: Response) => {
   try {
+    const isProd = process.env.NODE_ENV === "production";
 
- res.clearCookie('token', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    path: '/' // Ensure this matches where the cookie was set
-  });
- 
-   return sendSuccess(res,{
-    message:"Logout succcess fully"
-   })
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+      path: "/",
+    });
+
+    return res.status(200).json({
+      message: "Logout successful",
+    });
   } catch (error: any) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
+
 
 
 export const authControllers = {registerController,loginController,meController,logoutController}
