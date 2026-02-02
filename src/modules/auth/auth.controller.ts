@@ -21,33 +21,26 @@ import { sendSuccess } from "../../utils/apiResponse";
 };
 
 // -------------------- LOGIN --------------------
-const loginController = async (req: Request, res: Response) => {
+ const loginController = async (req: Request, res: Response) => {
   try {
     const { user, token } = await authServices.loginUser(req.body);
+const isProd = process.env.NODE_ENV === "production";
 
-
-    const isProd = process.env.NODE_ENV === "production";
-
-
-     res.cookie('token', token, { 
-       maxAge: 7 * 24 * 60 * 60 * 1000,
-        httpOnly:true,
-        secure:true,
-        sameSite:"none",
-        path:"/",
-        partitioned:true
-    });
-
-
-    return res.status(200).json({
+res.cookie("token", token, {
+  httpOnly: true,
+  secure: isProd,                 // ❗ HTTPS only
+  sameSite: isProd ? "none" : "lax",
+  path: "/",
+});
+    res.status(200).json({
       message: "Login successful",
       user,
+      token,
     });
   } catch (error: any) {
-    return res.status(400).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 };
-
 
 // -------------------- GET CURRENT USER --------------------
  const meController = async (req: Request, res: Response) => {
@@ -63,26 +56,27 @@ const loginController = async (req: Request, res: Response) => {
 };
     // --------------------  POST LOGOUT CURRENT USER --------------------
 
-const logoutController = async (req: Request, res: Response) => {
+ const logoutController = async (req: Request, res: Response) => {
   try {
-    const isProd = process.env.NODE_ENV === "production";
 
-    res.clearCookie("token", {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? "none" : "lax",
-      path: "/",
-    });
+
+ res.clearCookie("token", {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  path: "/",
+});
+
+
 
     return res.status(200).json({
       message: "Logout successful",
+  
     });
   } catch (error: any) {
-    return res.status(400).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 };
-
-
 
 
 export const authControllers = {registerController,loginController,meController,logoutController}
