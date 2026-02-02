@@ -3,7 +3,7 @@ node_modules
 .env
 pnpm-lock.yaml
 /generated/prisma
-
+/dist
 .vercel
 
 .vercel
