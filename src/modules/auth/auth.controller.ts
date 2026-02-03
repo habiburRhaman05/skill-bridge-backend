@@ -41,19 +41,6 @@ res.cookie("token", token, {
     res.status(400).json({ error: error.message });
   }
 };
-
-// -------------------- GET CURRENT USER --------------------
- const meController = async (req: Request, res: Response) => {
-  try {
-    // userId injected by auth middleware
-    const user = await authServices.getCurrentUser((req as any).user.userId);
-   return sendSuccess(res,{
-    data:user
-   })
-  } catch (error: any) {
-    res.status(400).json({ error: error.message });
-  }
-};
     // --------------------  POST LOGOUT CURRENT USER --------------------
 
  const logoutController = async (req: Request, res: Response) => {
@@ -73,6 +60,20 @@ res.cookie("token", token, {
       message: "Logout successful",
   
     });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+
+// -------------------- GET CURRENT USER --------------------
+ const meController = async (req: Request, res: Response) => {
+  try {
+    // userId injected by auth middleware
+    const user = await authServices.getCurrentUser((req as any).user.userId);
+   return sendSuccess(res,{
+    data:user
+   })
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }
