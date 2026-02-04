@@ -19,7 +19,7 @@ router.put("/sessions/:sessionId/finish-session",authMiddleware,roleMiddleware([
 // add availibity slot 
 router.put("/availability",authMiddleware,roleMiddleware(["TUTOR"]),validateRequest(tutorSchemas.addAvailabilitySchema), tutorControllers.addAvailabilityController);
 router.get("/availability",authMiddleware,roleMiddleware(["TUTOR"]), tutorControllers.getAllAvailabilitys);
-router.get("/:tutorId/get-dashboard-data",authMiddleware,roleMiddleware(["TUTOR"]), tutorControllers.getAllAvailabilitys);
+router.get("/get-dashboard-data",authMiddleware,roleMiddleware(["TUTOR"]), tutorControllers.getTutorDashboard);
 
 router.delete(
   "/availability/:id",

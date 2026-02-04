@@ -31,6 +31,8 @@ model User {
   name      String
   email     String      @unique
   password  String
+  location  String?
+  phoneNumber  String?
   profileAvater String?
   role      Role
   status    UserStatus  @default(ACTIVE)
@@ -52,7 +54,7 @@ model TutorProfile {
   userId       String   @unique
   bio          String
   hourlyRate   Int
-
+  experience  String
   availability Availability[]
 
   
@@ -61,6 +63,7 @@ model TutorProfile {
   subjects  String[]
   bookings  Booking[]
   categoryId  String
+
   category  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

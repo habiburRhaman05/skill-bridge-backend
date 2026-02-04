@@ -14,5 +14,22 @@ const getAllCategories = async (req:Request,res:Response,next:NextFunction) =>{
      next(error)
    }
 }
+const getKPIsData = async (req:Request,res:Response,next:NextFunction) =>{
+   try {
+     const kpisData = await sharedServices.getKPISData();
+     return sendSuccess(res,{
+        statusCode:200,
+        message:"fetch kpis report successfully",
+        data:kpisData
+     });
 
-export const sharedControllers = {getAllCategories}
+  
+   } catch (error) {
+     next(error)
+   }
+}
+
+
+
+
+export const sharedControllers = {getAllCategories,getKPIsData}

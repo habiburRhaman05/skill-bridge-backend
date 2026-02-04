@@ -1,7 +1,7 @@
 
 import { NextFunction, Request, Response } from "express";
 import { tutorServices } from "./tutor.service";
-import { sendSuccess } from "../../utils/apiResponse";
+import { sendError, sendSuccess } from "../../utils/apiResponse";
 import { prisma } from "../../lib/prisma";
 
 
@@ -174,9 +174,19 @@ console.log(result);
 
   const getTutorDashboard = async (req: Request, res: Response,next:NextFunction) => {
   try {
-    // ১. ইউজার টোকেন থেকে টিউটর আইডি নেওয়া (Auth Middleware থেকে আসা)
-    // যদি আপনার রুট প্যারামিটারে আইডি থাকে তবে: const { id } = req.params;
-    const tutorId = req.params.tutorId; 
+  
+
+    const user = await prisma.user.findUnique({
+      where:{id:req.user?.userId},
+      include:{tutorProfile:true}
+    })
+
+    if(!user){
+      return sendError(res,{
+        message:"User Not found"
+      })
+    }
+    const tutorId = user.tutorProfile?.id; 
 
     // ২. সার্ভিস কল করা
     const dashboardData = await tutorServices.tutorDashboardData(tutorId as string);
@@ -219,45 +229,7 @@ console.log(result);
   }
 };
 
-const getDashboardData = async (req:Request,res:Response,next:NextFunction) =>{
-   try {
-    const tutorId = req.params.tutorId as string
- const totalStudentsResult = await prisma.booking.groupBy({
-    by: ["studentId"],
-    where: { tutorId: tutorId },
-  
-  });
-  const totalStudents = totalStudentsResult.length;
 
-  const activeBookings = await prisma.booking.count({
-    where: {
-      tutorId: tutorId,
-      status: "CONFIRMED",
-    },
-  });
-
-  const reviews = await prisma.review.aggregate({
-    where: { tutorId: tutorId },
-    _avg: { rating: true },
-    _count: { id: true },
-  });
-
-  const data = {
-    totalStudents,
-    activeBookings,
-    avgRating: reviews._avg.rating ?? 0,
-    totalReviews: reviews._count.id,
-  };
-
-  return sendSuccess(res,{
-    message:"fetch successfully",
-    data
-  })
-    
-   } catch (error) {
-    next(error)
-   }
-}
 
 
 
@@ -276,6 +248,6 @@ const getDashboardData = async (req:Request,res:Response,next:NextFunction) =>{
     getTutorProfileDetails,
    getAllAvailabilitys,
    getTutorDashboard,
-   getDashboardData,
+  
    
  }

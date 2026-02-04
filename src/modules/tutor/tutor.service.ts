@@ -17,43 +17,58 @@ const createTutorProfile = async (userId: string, payload: TutorProfileCreatePay
       subjects: payload.subjects,
       hourlyRate: payload.hourlyRate,
       categoryId: payload.categoryId,
-      category: payload.category
+      category: payload.category,
+      experience: payload.experience,
+   
     },
   });
   return profile;
 };
 
 // -------------------- UPDATE TUTOR PROFILE --------------------
-const updateTutorProfile = async (userId: string, payload: TutorProfileUpdatePayload) => {
-  const profile = await prisma.tutorProfile.findUnique({ where: { userId } });
-  if (!profile) throw new Error("Tutor profile not found");
+const updateTutorProfile = async (
+  userId: string,
+  payload: TutorProfileUpdatePayload
+) => {
+  const profile = await prisma.tutorProfile.findUnique({
+    where: { userId },
+  });
 
-  const {user,...tutorData} = payload;
+  if (!profile) {
+    throw new Error("Tutor profile not found");
+  }
 
+  const { user, ...tutorData } = payload;
+  console.log("payload",payload);
+  
 
-  const updated = await prisma.$transaction(async (tx) =>{
-    const tutor = await tx.tutorProfile.update({
-          where: { userId },
-    data:tutorData
-    });
+  if (!user) {
+    throw new Error("User update data is required");
+  }
 
-    const userData = await tx.user.update({
-     where: { id:userId },
-    data:{
-      name:user.name
-    }
-    });
+  const [tutorProfile, userData] = await Promise.all([
+    prisma.tutorProfile.update({
+      where: { userId },
+      data: tutorData,
+    }),
+    prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: user.name,
+        phoneNumber: user.phoneNumber,
+        location: user.location,
+      },
+    }),
+  ]);
 
-
-
-    return {
-      userData,
-      tutorProfile:tutor
-    }
-  })
-
-  return updated;
+  return {
+    tutorProfile,
+    user: userData,
+  };
 };
+
+
+
 
 // -------------------- GET TUTOR PROFILE --------------------
 const getTutorProfile = async (userId: string) => {

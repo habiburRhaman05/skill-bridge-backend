@@ -88,6 +88,8 @@ const getCurrentUser = async (userId: string) => {
       name: true,
       email: true,
       role: true,
+      phoneNumber:true,
+      location:true,
       status: true,
       profileAvater:true,
       studentBookings:true,
@@ -98,6 +100,7 @@ const getCurrentUser = async (userId: string) => {
           bio: true,
           categoryId: true,
           category: true,
+          experience:true,
           hourlyRate: true,
           subjects:true,
           availability:true

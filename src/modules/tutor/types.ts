@@ -3,21 +3,26 @@ import { Role } from "../../../generated/prisma/enums";
 export interface TutorProfileCreatePayload {
   bio: string;
   profileAvater: string;
-  subjects: string[];    
-  hourlyRate: number;       
-  categoryId: string;       
-  category: string;       
-  availability: string[];  
+  subjects: string[];
+  hourlyRate: number;
+  categoryId: string;
+  experience: string;
+  category: string;
+  availability: string[];
 }
 
 export interface TutorProfileUpdatePayload {
   bio?: string;
-   category:string;  
-   categoryId:string;  
+  category: string;
+  categoryId: string;
+  experience?: string;
+
   hourlyRate?: number;
-user:{
-  name:string
-}
+  user: {
+    name: string
+    location: string;
+    phoneNumber: string;
+  }
   subjects?: string[];
 }
 
@@ -27,15 +32,19 @@ export interface TutorProfileResponse {
   userId: string;
   bio: string;
   hourlyRate: number;
+  experience: string;
+
   category: string;
   subjects: string[];
   availability: string[];
   user?: {
-     name: string;
-     email: string;
-     profileAvater:string
-     role: Role;
-     status: string;
+    name: string;
+    email: string;
+    profileAvater: string
+    role: Role;
+    status: string;
+    location: string;
+    phoneNumber: string;
   };
 }
 
@@ -55,8 +64,8 @@ export type TutorFilters = {
 };
 
 export type StatusEnum = {
-      CONFIRMED: 'CONFIRMED',
+  CONFIRMED: 'CONFIRMED',
   COMPLETED: 'COMPLETED',
   CANCELLED: 'CANCELLED'
-  
+
 }
