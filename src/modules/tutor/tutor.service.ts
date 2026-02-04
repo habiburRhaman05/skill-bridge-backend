@@ -1,4 +1,6 @@
 // src/modules/tutor/tutor.service.ts
+import { Prisma } from "../../../generated/prisma/client";
+import { Role, UserStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
 import { authServices } from "../auth/auth.service";
@@ -276,77 +278,37 @@ const markdSessionFinish = async (userId: string, bookingId: string,status:strin
 
 
 
-const getAllTutors = async (filters: TutorFilters) => {
-  const { category, q, rating, minPrice, maxPrice,subject } = filters;
 
-  return prisma.user.findMany({
-    where: {
-      role: "TUTOR",
-      status: "ACTIVE",
+ const getAllTutors = async (filters: TutorFilters) => {
+  const { category, q, rating, minPrice, maxPrice, subject } = filters;
 
-      tutorProfile: {
-        isNot: null,
-        is: {
 
-          // category
-          ...(category && {
-            categoryId: category,
-          }),
+  const tutorProfileFilter: Prisma.TutorProfileWhereInput = {};
+  if (category) tutorProfileFilter.categoryId = category;
+  if (subject) tutorProfileFilter.subjects = { has: subject };
+  if (minPrice || maxPrice) {
+    tutorProfileFilter.hourlyRate = {
+      ...(minPrice && { gte: Number(minPrice) }),
+      ...(maxPrice && { lte: Number(maxPrice) }),
+    };
+  }
 
-          ...(minPrice || maxPrice
-            ? {
-                hourlyRate: {
-                  ...(minPrice && { gte: Number(minPrice) }),
-                  ...(maxPrice && { lte: Number(maxPrice) }),
-                },
-              }
-            : {}),
 
-          // rating
-          ...(rating && {
-            bookings: {
-              some: {
-                review: {
-                  rating: {
-                    gte: Number(rating),
-                  },
-                },
-              },
-            },
-          }),
+  const userWhere: Prisma.UserWhereInput = {
+    role: "TUTOR",
+    status: "ACTIVE",
+    tutorProfile: { isNot: null, is: tutorProfileFilter },
+  };
 
-          ...(
-            subject && {
-              subjects:{
-                has:subject
-              }
-            }
-          )
-        },
-      },
+  if (q) {
+    userWhere.OR = [
+      { name: { contains: q, mode: "insensitive" } },
+      { tutorProfile: { is: { subjects: { has: q } } } },
+    ];
+  }
 
-      // 🔍 Search
-      ...(q && {
-        OR: [
-          {
-            name: {
-              contains: q,
-              mode: "insensitive",
-            },
-          },
-          {
-            tutorProfile: {
-              is: {
-                subjects: {
-                  has: q,
-                },
-              },
-            },
-          },
-        ],
-      }),
-    },
-
+  const tutors = await prisma.user.findMany({
+    where: userWhere,
     select: {
       id: true,
       name: true,
@@ -355,9 +317,9 @@ const getAllTutors = async (filters: TutorFilters) => {
       role: true,
       status: true,
       createdAt: true,
-
       tutorProfile: {
         select: {
+          id: true, 
           hourlyRate: true,
           subjects: true,
           category: true,
@@ -365,6 +327,47 @@ const getAllTutors = async (filters: TutorFilters) => {
       },
     },
   });
+
+
+  const tutorProfileIds = tutors
+    .map((t) => t.tutorProfile?.id)
+    .filter(Boolean) as string[];
+
+  const ratings = await prisma.review.groupBy({
+    by: ["tutorId"],
+    where: {
+      tutorId: { in: tutorProfileIds },
+    },
+    _avg: {
+      rating: true,
+    },
+  });
+
+
+  const ratingsMap: Record<string, number> = {};
+  ratings.forEach((r) => {
+    if (r._avg?.rating != null) {
+      ratingsMap[r.tutorId] = r._avg.rating;
+    }
+  });
+
+ 
+  const tutorsWithAvgRating = tutors
+    .map((t) => {
+     
+      const avg = t.tutorProfile ? (ratingsMap[t.tutorProfile.id] ?? 0) : 0;
+      return {
+        ...t,
+        avgRating: Number(avg.toFixed(1)),
+      };
+    })
+    
+    .filter((t) => {
+      if (!rating) return true;
+      return t.avgRating >= Number(rating);
+    });
+
+  return tutorsWithAvgRating;
 };
 
 
