@@ -42,9 +42,7 @@ export async function authMiddleware(
     }
  
     
-    console.log("request",req.user);
-    console.log("payload",payload);
-    
+
 
     req.user = {
       userId: payload.userId,

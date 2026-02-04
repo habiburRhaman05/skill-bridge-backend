@@ -33,6 +33,8 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
 const updateUserStatus = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { status } = req.body;
+    console.log(req.body);
+    
     const user = await adminServices.updateUserStatus(req.params.id as string, status);
     return sendSuccess(res, {
       statusCode: 200,
@@ -103,6 +105,21 @@ const deleteCategory = async (req: Request, res: Response, next: NextFunction) =
     next(error);
   }
 };
+const getDashboardData = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+
+ 
+   
+    const data = await adminServices.getDashboardData();
+    return sendSuccess(res, {
+      statusCode: 200,
+      message: "category delete successfully",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const adminControllers = {
   getProfile,
@@ -110,5 +127,6 @@ getAllBookings,
   getAllUsers,
   updateUserStatus,
   createNewCategory,
-  updateCategory,deleteCategory
+  updateCategory,deleteCategory,
+  getDashboardData
 };
