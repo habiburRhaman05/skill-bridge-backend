@@ -229,9 +229,6 @@ const getDashboardData = async (req:Request,res:Response,next:NextFunction) =>{
   });
   const totalStudents = totalStudentsResult.length;
 
-  // -----------------------------
-  // 2️⃣ Active Bookings
-  // -----------------------------
   const activeBookings = await prisma.booking.count({
     where: {
       tutorId: tutorId,
@@ -239,9 +236,6 @@ const getDashboardData = async (req:Request,res:Response,next:NextFunction) =>{
     },
   });
 
-  // -----------------------------
-  // 3️⃣ Avg Rating & Total Reviews
-  // -----------------------------
   const reviews = await prisma.review.aggregate({
     where: { tutorId: tutorId },
     _avg: { rating: true },
@@ -265,6 +259,10 @@ const getDashboardData = async (req:Request,res:Response,next:NextFunction) =>{
    }
 }
 
+
+
+
+
  export const tutorControllers = {
     createProfile,
     updateProfile,
@@ -278,5 +276,6 @@ const getDashboardData = async (req:Request,res:Response,next:NextFunction) =>{
     getTutorProfileDetails,
    getAllAvailabilitys,
    getTutorDashboard,
-   getDashboardData
+   getDashboardData,
+   
  }

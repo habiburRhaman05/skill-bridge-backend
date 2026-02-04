@@ -7,6 +7,7 @@ import { validateRequest } from "../../middleware/validateRequest";
 import { authSchemas } from "./auth.schema";
 import { studentSchemas } from "../student/student.schema";
 import { studentController } from "../student/student.controller";
+import { upload } from "../upload/upload-image.service";
 
 
 const router:Router = Router();
@@ -14,6 +15,7 @@ const router:Router = Router();
 router.post("/register",validateRequest(authSchemas.registerUserSchema), authControllers.registerController);
 router.post("/login",validateRequest(authSchemas.loginSchema), authControllers.loginController);
 router.get("/me", authMiddleware, authControllers.meController);
+router.put("/profile/change-avater",authMiddleware,roleMiddleware(["STUDENT","TUTOR"]),upload.single("file"), authControllers.handleAvaterChange);
 router.post("/logout", authMiddleware, authControllers.logoutController);
 //  ============== FOR STUDENT/USER AND TUTOR BOTH CAN USE IT ==============
 

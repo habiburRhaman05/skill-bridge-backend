@@ -1,7 +1,8 @@
 // src/modules/auth/auth.controller.ts
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { authServices } from "./auth.service";
 import { sendSuccess } from "../../utils/apiResponse";
+import { prisma } from "../../lib/prisma";
 
 // -------------------- REGISTER --------------------
  const registerController = async (req: Request, res: Response) => {
@@ -80,4 +81,40 @@ res.cookie("token", token, {
 };
 
 
-export const authControllers = {registerController,loginController,meController,logoutController}
+const handleAvaterChange = async (req:Request,res:Response,next:NextFunction) =>{
+   try {
+
+    const userid = req.user?.userId
+
+     if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const result = req.file as Express.Multer.File & { path: string };
+
+
+    await prisma.user.update({
+      where:{
+        id:userid
+      },
+      data:{
+        profileAvater:result.path
+      }
+    })
+
+    return sendSuccess(res,{
+      message:"your Profile Avater Upload sucessfully",
+      data:{
+        profileAvater:result.path
+      }
+    })
+
+
+  
+    
+   } catch (error) {
+    next(error)
+   }
+}
+
+export const authControllers = {registerController,loginController,meController,logoutController,handleAvaterChange}
