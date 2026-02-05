@@ -100,7 +100,12 @@ const getTutorSessions = async (userId: string) => {
       status: true,
       dateTime: true,
       createdAt: true,
-
+      student:{
+        select:{
+          profileAvater:true,
+          name:true
+        }
+      },
       availability: {
         select: {
           date: true,

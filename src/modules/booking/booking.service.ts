@@ -14,7 +14,7 @@ const createBooking = async (
 ) => {
   const { tutorId, availabilityId } = payload;
 
-  // 1️⃣ Check availability slot
+  //  Check availability slot
   const availability = await prisma.availability.findUnique({
     where: { id: availabilityId },
   });
@@ -65,6 +65,7 @@ const getAllBookings = async (userId: string) => {
   const bookings = await prisma.booking.findMany({
     where: { studentId: userId},
     include:{
+      
       review:true
     },
     orderBy: { dateTime: "asc" },
@@ -104,10 +105,19 @@ const getBookingDetails = async (bookingId: string) => {
           student:true
         }
       },
-      // We go through availability to get the tutor
+      
       availability: {
         include: {
-          tutor: true, // This maps the tutor profile directly
+          tutor: {
+            include:{
+              user:{
+                select:{
+                  profileAvater:true,
+                  name:true
+                }
+              }
+            }
+          }
         }
       },
     },
@@ -115,7 +125,6 @@ const getBookingDetails = async (bookingId: string) => {
 
   if (!bookingDetails) return null;
 
-  // Flattening the object for easier use in your frontend
   return {
     ...bookingDetails,
     tutorProfile: bookingDetails.availability?.tutor || null,

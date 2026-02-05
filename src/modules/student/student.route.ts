@@ -11,7 +11,7 @@ const router:Router = Router();
 router.get("/profile",authMiddleware,roleMiddleware(["STUDENT"]), studentController.getProfile);
 router.put("/profile",authMiddleware,roleMiddleware(["STUDENT"]), studentController.updateProfile);
 router.post("/profile/avater-change",authMiddleware,roleMiddleware(["STUDENT"]), studentController.updateProfile);
-router.get("/:id/dashboard/stats", studentController.getStudentdashboardStats);
+router.get("/:id/dashboard/stats",authMiddleware,roleMiddleware(["STUDENT"]),studentController.getStudentdashboardStats);
 
  
 

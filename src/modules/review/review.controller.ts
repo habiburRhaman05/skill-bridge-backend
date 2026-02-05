@@ -18,11 +18,13 @@ const createReview = async (req:Request,res:Response,next:NextFunction) =>{
 const getAllReview = async (req:Request,res:Response,next:NextFunction) =>{
     try {
         const tutorId = req.params.tutorId
-        const newReview = await reviewsServives.getAllReview(tutorId as string);
+        console.log("tutorId",tutorId);
+        
+        const allReviewByTutorId = await reviewsServives.getAllReview(tutorId as string);
         return sendSuccess(res,{
             statusCode:201,
             message:"your Review fetch successfully",
-            data:newReview
+            data:allReviewByTutorId
         })
     } catch (error) {
      next(error)   
