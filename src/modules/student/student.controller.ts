@@ -81,7 +81,9 @@ import { sendSuccess } from "../../utils/apiResponse";
 
   const getStudentdashboardStats = async (req:Request,res:Response,next:NextFunction)=>{
     try {
-      const userId =  req.user?.userId
+      const userId =  req.params?.id as string
+      console.log("user",req.user);
+      
       const stats = await studentService.getStudentStatsData(userId!);
       return sendSuccess(res,{
         statusCode:200,

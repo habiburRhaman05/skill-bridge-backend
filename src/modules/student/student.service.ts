@@ -46,7 +46,7 @@ const  getProfile= async (userId: string) => {
   };
 
 const getStudentStatsData = async (userId: string) => {
- 
+console.log(userId);
 
     const [
       totalBooking,

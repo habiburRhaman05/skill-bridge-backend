@@ -21,7 +21,6 @@ const createTutorProfile = async (userId: string, payload: TutorProfileCreatePay
       categoryId: payload.categoryId,
       category: payload.category,
       experience: payload.experience,
-   
     },
   });
   return profile;
